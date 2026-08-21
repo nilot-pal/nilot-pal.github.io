@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Giving a closed solver a feature its API does not have — Nilotpal Chakraborty</title>
+<meta name="description" content="A ~1,200-line stochastic breakage library inside a commercial CFD solver: special functions from scratch, conservative rebinning, and a per-particle state channel hidden in the bits of a float.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site">
+  <div class="wrap">
+    <a class="home" href="/">Nilotpal Chakraborty</a>
+    <nav>
+      <a href="/sphinxsys.html">SPH</a>
+      <a href="/solver-internals.html" aria-current="page">Solver internals</a>
+      <a href="/hpc.html">HPC</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap"><article>
+
+  <h1>Giving a closed solver a feature its API does not have</h1>
+  <p class="standfirst">
+    A ~1,200-line numerical library living inside a commercial CFD code, written because the
+    things it needed were not there.
+  </p>
+
+  <p>
+    My dissertation models what happens when a gas turbine ingests sand: the particles hit the
+    blades, weaken, and eventually shatter. Modelling the shattering means a
+    <strong>comminution-based breakage model</strong> — the first time one has been put inside
+    turbomachinery simulation software. Getting it there is where the engineering is.
+  </p>
+
+  <p>
+    The solver is closed. You get a user-subroutine hook, a fixed calling convention, and whatever
+    the API hands you. Three things I needed did not exist.
+  </p>
+
+  <h2>1. There is no maths library</h2>
+
+  <p>
+    The fragment-size statistics need an incomplete beta function. The solver's user-routine
+    environment provides no such thing, so I implemented what the model needed from scratch:
+    <strong>log-gamma</strong>, the <strong>continued-fraction incomplete beta function</strong>,
+    and an <strong>inverse error function</strong>. Alongside them, cubic spline interpolation and
+    spline <em>inversion</em>, to map between cumulative breakage distributions and fragment size
+    classes in both directions.
+  </p>
+
+  <h2>2. There is no per-particle state</h2>
+
+  <p>
+    This is the interesting one.
+  </p>
+
+  <p>
+    Real particles weaken. An impact too weak to break a grain still damages it, and the next
+    impact meets a weaker grain. To model that, each particle has to carry its accumulated damage
+    with it — across a Lagrangian track, across MPI rank boundaries, for the whole simulation.
+  </p>
+
+  <p>
+    The solver carries <strong>one</strong> float per particle: the diameter. There is nowhere to
+    put anything else.
+  </p>
+
+  <p>
+    So I put the damage inside the diameter. The accumulated fracture energy is log-quantised to
+    <strong>14 bits</strong> and packed into the low mantissa bits of the
+    <strong>IEEE-754</strong> diameter word, behind a flag bit, with guards for denormals,
+    infinities and sign, and graceful fallback to an unmodified value if anything looks wrong. The
+    diameter stays accurate to far more precision than the physics needs; the spare bits carry the
+    history.
+  </p>
+
+  <div class="callout">
+    <p>
+      Without this, sub-threshold impacts do nothing and every particle meets each impact as good
+      as new. <strong>The state channel is what makes history-dependent weakening possible at all
+      inside a closed solver</strong> — not faster, not tidier: possible.
+    </p>
+  </div>
+
+  <h2>3. The return slot is a fixed width</h2>
+
+  <p>
+    When a particle breaks, the API accepts a fixed six-child return. A real fragment distribution
+    does not have six bins. So the library does <strong>conservative rebinning</strong>: adaptive
+    bin edges, mass- and number-conserving redistribution, cutoff filtering, renormalisation and
+    adjacent-bin merging, mapped onto those six slots with inactive-slot handling — such that mass
+    and number are conserved regardless of how the distribution actually falls.
+  </p>
+
+  <h2>Finding an error nobody knew was there</h2>
+
+  <p>
+    Separately, while validating particle tracks, I found an <strong>undocumented particle-tracking
+    error at transient rotor–stator interfaces</strong> in the commercial solver. It does not crash
+    and it does not warn. It produces plausible, wrong answers.
+  </p>
+
+  <p>
+    That class of bug is the one worth catching, because nothing downstream tells you it happened.
+    It had already reached conclusions in sponsor-facing work, which had to be corrected, and it
+    changed how the group sets up this kind of simulation.
+  </p>
+
+  <h2>Why this is the work I want to be hired for</h2>
+
+  <p>
+    There is a difference between writing a user routine that swaps one drag correlation for
+    another, and building a state channel that does not exist so a physical process can be
+    represented at all. The first is a parameter study. The second is a decision about what the
+    software is capable of.
+  </p>
+
+  <p>
+    The domain here is turbomachinery. The transferable part is not.
+  </p>
+
+</article></main>
+
+<footer class="site">
+  <div class="wrap">
+    Blacksburg, Virginia ·
+    <a href="mailto:nilotpalc@vt.edu">nilotpalc@vt.edu</a> ·
+    <a href="https://github.com/nilot-pal">github.com/nilot-pal</a>
+  </div>
+</footer>
+
+</body>
+</html>

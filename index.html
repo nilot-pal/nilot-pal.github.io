@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nilotpal Chakraborty — solver internals and numerical methods</title>
+<meta name="description" content="PhD candidate at Virginia Tech. I build the numerical machinery that closed solvers do not provide — special functions, state channels, Riemann solvers — for large-scale simulation on HPC.">
+<meta property="og:title" content="Nilotpal Chakraborty">
+<meta property="og:description" content="I build the numerical machinery that closed solvers do not provide.">
+<meta property="og:type" content="profile">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site">
+  <div class="wrap">
+    <a class="home" href="/">Nilotpal Chakraborty</a>
+    <nav>
+      <a href="/sphinxsys.html">SPH</a>
+      <a href="/solver-internals.html">Solver internals</a>
+      <a href="/hpc.html">HPC</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="hero">
+    <div class="hero-top">
+      <img class="avatar" src="assets/photo.jpg" alt="Nilotpal Chakraborty" width="104" height="104">
+      <div>
+        <h1>Nilotpal Chakraborty</h1>
+        <p class="role">PhD candidate, Mechanical Engineering, Virginia Tech · defending December 2026</p>
+      </div>
+    </div>
+
+    <p class="lede">
+      <strong>I build the numerical machinery that closed solvers do not provide.</strong>
+      Most of my work happens inside other people's codes: special functions written from scratch
+      because the solver ships no maths library, a per-particle state channel packed into the bits
+      of a float because the API carries no state, an HLLC Riemann solver added to an open-source
+      SPH library after working out why its surface tension broke.
+    </p>
+
+    <p>
+      My application domain is particle ingestion in gas-turbine compressors — 100M+ cell campaigns
+      on HPC, in a programme sponsored by Rolls-Royce and Pratt&nbsp;&amp;&nbsp;Whitney. The portable
+      part is the machinery, not the domain.
+    </p>
+
+    <div class="links">
+      <a href="https://github.com/nilot-pal">GitHub</a>
+      <a href="mailto:nilotpalc@vt.edu">nilotpalc@vt.edu</a>
+    </div>
+  </section>
+
+  <h2 class="section">Three things worth reading</h2>
+
+  <a class="card" href="/sphinxsys.html">
+    <h3>I found a numerical instability in an open-source SPH library</h3>
+    <p>
+      Its multiphase surface-tension model fails above Re ≈ 10³ — the fluid particles do not
+      disorder, they leave the domain. I isolated it, reported it, and the maintainers'
+      fix is now in a CMAME paper that acknowledges me. <span class="more">Read →</span>
+    </p>
+  </a>
+
+  <a class="card" href="/solver-internals.html">
+    <h3>I gave a commercial solver a feature its API does not have</h3>
+    <p>
+      Damage history had to survive a Lagrangian track across MPI ranks, but the solver carries one
+      float per particle. So the history went inside the float.
+      <span class="more">Read →</span>
+    </p>
+  </a>
+
+  <a class="card" href="/hpc.html">
+    <h3>I made simulations possible that the group could not run before</h3>
+    <p>
+      A scaling study that found the real bottleneck was memory, not cores — and changed what
+      hardware we bought. <span class="more">Read →</span>
+    </p>
+  </a>
+
+  <h2 class="section">Elsewhere</h2>
+  <p>
+    Acknowledged in
+    <a href="https://doi.org/10.1016/j.cma.2025.118147">Zhang, Lourenço &amp; Hu,
+    <em>Computer Methods in Applied Mechanics and Engineering</em> <strong>444</strong> (2025)</a>.
+    Second author on a multiphase perfusion model in <em>Experimental and Computational Multiphase
+    Flow</em> (2023). Three first-author manuscripts from the dissertation in preparation.
+  </p>
+  <p>
+    Pratt Fellowship, Virginia Tech College of Engineering (2022) · Summer Cunningham Fellowship,
+    VT Graduate School (2026) · Mitacs Globalink Research Fellowship (2019) · Shastri Research
+    Fellowship (2019).
+  </p>
+
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    Blacksburg, Virginia ·
+    <a href="mailto:nilotpalc@vt.edu">nilotpalc@vt.edu</a> ·
+    <a href="https://github.com/nilot-pal">github.com/nilot-pal</a>
+  </div>
+</footer>
+
+</body>
+</html>

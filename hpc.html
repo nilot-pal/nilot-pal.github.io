@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Making infeasible runs feasible — Nilotpal Chakraborty</title>
+<meta name="description" content="A scaling study that found the bottleneck was memory rather than cores, and the data pipelines that turned hundreds of gigabytes of solver output into something you can model.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site">
+  <div class="wrap">
+    <a class="home" href="/">Nilotpal Chakraborty</a>
+    <nav>
+      <a href="/sphinxsys.html">SPH</a>
+      <a href="/solver-internals.html">Solver internals</a>
+      <a href="/hpc.html" aria-current="page">HPC</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap"><article>
+
+  <h1>Making infeasible runs feasible</h1>
+  <p class="standfirst">
+    The full-annulus simulations the group needed would not run. The reason was not the one
+    everybody assumed.
+  </p>
+
+  <h2>The scaling study</h2>
+
+  <p>
+    Resolving what happens to particles through a multi-stage compressor properly means a
+    <strong>full-annulus</strong> simulation — every blade passage, not one sector with periodic
+    boundaries. That is a 100M+ cell problem, and the group could not run it.
+  </p>
+
+  <p>
+    The instinct in that situation is to ask for more cores. I ran a systematic scaling and
+    performance study on our Slurm clusters instead, across node counts, rank layouts and memory
+    configurations. <strong>The binding constraint was memory bandwidth and per-node memory, not
+    core count.</strong> Past a certain rank density the cores were waiting, and adding more made
+    it worse.
+  </p>
+
+  <p>
+    That result changed what we bought. It fed directly into hardware and licence procurement
+    decisions, and <strong>100M+ cell full-annulus simulations became feasible for the group for
+    the first time.</strong>
+  </p>
+
+  <div class="callout">
+    <p>
+      The useful output of a scaling study is rarely a speedup number. It is finding out which
+      resource you are actually short of, which is often not the one being requested.
+    </p>
+  </div>
+
+  <h2>The campaigns</h2>
+
+  <p>
+    On top of that: structured parameter sweeps and DoE-style studies across operating conditions,
+    mesh resolution, timestep and particle parameters, on large-memory nodes under MPI. Enough runs
+    that managing them by hand stops being possible, which is its own engineering problem.
+  </p>
+
+  <h2>Turning output into something you can model</h2>
+
+  <p>
+    A campaign of this size produces up to <strong>450 GB</strong> per run. The solver's own
+    post-processing tools will not answer questions at that scale, and several of the questions I
+    needed answered are not ones they can express at all.
+  </p>
+
+  <p>
+    So the analysis is a pipeline: automated, reproducible, and written to be run again. One
+    <strong>254 GB</strong> particle-track file is parsed down to
+    <strong>10,797 mass-verified fracture events</strong> — every one checked for mass conservation
+    on the way through, because a fracture event that does not conserve mass is a bug in my model
+    and I would rather find it than average over it.
+  </p>
+
+  <p>
+    That dataset is what makes the reduced-order modelling possible: a breakage model collapsed to
+    <strong>three substrate-independent parameters</strong> (RMSE 0.051 across 48 conditions), with
+    <strong>leave-one-surface-out cross-validation transferring between alloys at ΔRMSE &lt;
+    0.001</strong> — a held-out generalisation test, not a fit.
+  </p>
+
+  <h2>Infrastructure as an output</h2>
+
+  <p>
+    Solver extensions, tracking methodology, job workflow, analysis pipeline: this is now the
+    infrastructure the group's other doctoral projects and its sponsor deliverables run on, and I
+    train the junior students on it.
+  </p>
+
+  <p>
+    I mention it because it is the part that does not appear in a publication list. Building the
+    thing several other people's work depends on is a different contribution from writing a paper,
+    and I would rather be measured on it.
+  </p>
+
+  <h2>Next</h2>
+
+  <p>
+    Learned surrogates for the expensive particle-laden physics, on the open NASA Rotor 35 geometry
+    — with the evaluation done properly: held-out conditions, conservation checks on the predicted
+    distributions, and an honest map of where the surrogate stops being trustworthy. Anyone can
+    train a surrogate. The useful question is whether you should believe it.
+  </p>
+
+</article></main>
+
+<footer class="site">
+  <div class="wrap">
+    Blacksburg, Virginia ·
+    <a href="mailto:nilotpalc@vt.edu">nilotpalc@vt.edu</a> ·
+    <a href="https://github.com/nilot-pal">github.com/nilot-pal</a>
+  </div>
+</footer>
+
+</body>
+</html>
