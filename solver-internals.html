@@ -37,7 +37,7 @@
 
   <p>
     The solver is closed. You get a user-subroutine hook, a fixed calling convention, and whatever
-    the API hands you. Three things I needed did not exist.
+    the API hands you. Three things I needed did not exist — and one thing I needed was forbidden.
   </p>
 
   <h2>1. There is no maths library</h2>
@@ -94,6 +94,70 @@
     adjacent-bin merging, mapped onto those six slots with inactive-slot handling — such that mass
     and number are conserved regardless of how the distribution actually falls.
   </p>
+
+  <h2>A second constraint, and the choice it forced</h2>
+
+  <p>
+    Modelling breakage is only half the point. What the sponsors want to know is where the blade
+    erodes. The solver ships two erosion models — Tabakoff and Finnie — and
+    <strong>neither is particle-size dependent.</strong>
+  </p>
+
+  <p>
+    That is fine until particles start breaking. A fragment is smaller than its parent and erodes
+    differently at the same impact conditions, so a size-independent model gets the answer wrong in
+    precisely the situation the whole project exists to study. The fix is a size-dependent model
+    (Oka), implemented in Fortran and coupled to the tracking engine so it evaluates in real time
+    as particles move.
+  </p>
+
+  <p>
+    Except the solver <strong>does not allow a custom breakage model and a custom erosion model in
+    the same routine.</strong> One of them has to go.
+  </p>
+
+  <div class="callout">
+    <p>
+      Breakage stayed inside. It has to: a fragment created in stage one must be tracked through
+      stages two and three, and only the solver's own particle tracker can do that. Erosion moved
+      outside — it can be computed afterwards from the impact conditions the tracker already
+      records, and the in-solver breakage actually <em>helps</em>, because particle size at each
+      impact comes along with the impact data.
+    </p>
+  </div>
+
+  <p>
+    Which is a clean answer, and it creates the next problem.
+  </p>
+
+  <h2>Rebuilding an algorithm the vendor does not document</h2>
+
+  <p>
+    Erosion computed at impact points gives you a scatter of values on a blade surface. That is
+    close to useless to look at — the impacts are sparse and irregular, and no pattern is visible.
+    What you want is erosion rate at the <em>mesh nodes</em>, which is what the solver's own
+    post-processor shows.
+  </p>
+
+  <p>
+    Going from one to the other is not interpolation. You have to build a control volume around
+    each node, work out which impact points fall inside it, and sum their contributions. The solver
+    does this internally and does not document how.
+  </p>
+
+  <p>
+    So I reconstructed it: per-node control volumes, point-in-volume assignment via
+    <strong>KD-tree</strong> spatial search, summation to the node. I could not reproduce the
+    vendor's exact algorithm — I do not know their tie-breaking or their volume construction — but
+    the replacement agrees with it in an average sense, and it writes nodal fields in a format the
+    post-processor will import. Erosion patterns became something you could look at and act on.
+  </p>
+
+  <p>
+    I would rather say plainly that it matches on average than claim it is the same algorithm. It
+    is not, and anyone who checked would find that out.
+  </p>
+
 
   <h2>Finding an error nobody knew was there</h2>
 
