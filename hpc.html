@@ -74,8 +74,8 @@
   <p>
     It did the opposite. Holding 64 cores per node and adding nodes: <strong>838 s → 711 s →
     530 s</strong> across one, two and three. At 14 cores per node, 2269 s on one node fell to
-    <strong>576 s on sixteen</strong> — roughly a 6× speedup where the textbook predicts a
-    penalty.
+    <strong>576 s on sixteen</strong> — a <strong>3.9× speed-up</strong> where the textbook
+    predicts a penalty.
   </p>
 
   <div class="callout">
@@ -98,6 +98,8 @@
   <p>
     Extrapolated to 16 nodes × 64 cores the month-long case lands near <strong>8.75 days</strong>,
     bounded not by hardware but by the 400 ANSYS licences the group can hold at once.
+    The timings behind all of this, and the script that turns them into the plots, are in
+    <a href="https://github.com/nilot-pal/cfx-cluster-scaling">cfx-cluster-scaling</a>.
   </p>
 
   <p>
@@ -257,6 +259,26 @@
     I mention it because it is the part that does not appear in a publication list. Building the
     thing several other people's work depends on is a different contribution from writing a paper,
     and I would rather be measured on it.
+  </p>
+
+  <h2>The code and the data</h2>
+
+  <ul class="repos">
+    <li>
+      <a href="https://github.com/nilot-pal/cfx-cluster-scaling">cfx-cluster-scaling</a>
+      <p>
+        Every number on this page, with the measurements underneath it. Wall-clock timings as
+        CSV, the figures regenerated from those CSVs by a script rather than drawn by hand, the
+        sanitised Slurm job scripts, and the full write-up of the dynamic-memory and I/O work —
+        the failure signature, the per-rank evidence, and the questions I took to the HPC centre.
+      </p>
+    </li>
+  </ul>
+
+  <p>
+    It also records what to distrust: each point is a single run rather than an average, the
+    8.75-day figure is an extrapolation, and the error-255 workaround is documented as something
+    that worked without my ever establishing why.
   </p>
 
   <h2>Next</h2>
