@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deciding whether to believe a model — Nilotpal Chakraborty</title>
+<meta name="description" content="Machine learning projects built around evaluation rather than accuracy: threshold tuning under asymmetric costs, and why the model that wins on F1 is often not the one to deploy.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site">
+  <div class="wrap">
+    <a class="home" href="/">Nilotpal Chakraborty</a>
+    <nav>
+      <a href="/sphinxsys.html">SPH</a>
+      <a href="/solver-internals.html">Solver internals</a>
+      <a href="/hpc.html">HPC</a>
+      <a href="/evaluation.html" aria-current="page">Evaluation</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap"><article>
+
+  <h1>Deciding whether to believe a model</h1>
+  <p class="standfirst">
+    Anyone can train a surrogate. The useful question is whether you should believe it — and that
+    is a question about evaluation, not about architecture.
+  </p>
+
+  <p>
+    My dissertation work is heading towards learned surrogates for particle-laden compressor flow.
+    The hard part there is not fitting the model. It is knowing the conditions under which its
+    prediction can be trusted, and being able to say where it stops.
+  </p>
+
+  <p>
+    That is the same discipline as verifying a solver. A residual tells you an iteration stopped
+    moving; it does not tell you it stopped at the right answer. An accuracy score tells you a
+    classifier agrees with the majority class; it does not tell you the model is useful. In both
+    cases the number that is easy to compute is not the number that decides anything.
+  </p>
+
+  <p>
+    Two small projects where I worked that through on problems where the ground truth is
+    available, so the reasoning is checkable.
+  </p>
+
+  <h2>The model that wins on F1 is not the one to deploy</h2>
+
+  <p>
+    SMS spam detection: 5,572 messages, 13.4% spam. Classical TF–IDF baselines against a
+    fine-tuned DistilBERT, same split, same protocol.
+  </p>
+
+  <table>
+    <thead>
+      <tr><th>Model</th><th>Precision</th><th>Recall</th><th>F1</th><th>Accuracy</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>TF–IDF + logistic regression</td><td>1.00</td><td>0.83</td><td>0.91</td><td>0.98</td></tr>
+      <tr><td>TF–IDF + naive Bayes</td><td>0.98</td><td>0.85</td><td>0.91</td><td>0.98</td></tr>
+      <tr><td>Logistic regression, threshold tuned</td><td>0.97</td><td>0.89</td><td>0.93</td><td>0.98</td></tr>
+      <tr><td>DistilBERT</td><td>0.98</td><td>0.97</td><td>0.97</td><td>0.99</td></tr>
+    </tbody>
+  </table>
+
+  <p>
+    Every model scores 0.98–0.99 accuracy while recall ranges from 0.83 to 0.97, which is the
+    first thing worth noticing: at 13% positives, accuracy separates nothing. A model that predicts
+    "not spam" every time scores 0.866.
+  </p>
+
+  <p>
+    DistilBERT wins on recall and F1, and the margin is real — 0.83 to 0.97 is about 21 more spam
+    messages caught out of 149. But translated into messages on the test set:
+  </p>
+
+  <table>
+    <thead>
+      <tr><th></th><th>Spam caught (of 149)</th><th>Legitimate messages misfiled (of 966)</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Logistic regression</td><td>124</td><td>0</td></tr>
+      <tr><td>DistilBERT</td><td>~145</td><td>~3</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <p>
+      Logistic regression is at precision 1.00 — it never touches a real message. DistilBERT
+      catches 21 more spam messages and introduces an error class the baseline does not have
+      at all.
+    </p>
+  </div>
+
+  <p>
+    Those two mistakes are not worth the same. A spam message in the inbox is deleted in a second.
+    A real message silently moved to a spam folder can be missed entirely — a verification code, an
+    appointment, a person. If the cost ratio is anything like ten to one, the baseline's error
+    profile is the better one despite losing on every headline metric.
+  </p>
+
+  <p>
+    F1 weights precision and recall equally. That is an assumption about the application, and here
+    it is the wrong one. The metric has to come from the cost of each mistake before the model
+    comparison means anything.
+  </p>
+
+  <h2>Model ranking depends on the operating point</h2>
+
+  <p>
+    Customer churn on the IBM Telco dataset, ~27% churn. Logistic regression, a decision tree and a
+    random forest through one preprocessing pipeline, with the transformer fitted inside
+    cross-validation so the test split does not leak into the fit.
+  </p>
+
+  <table>
+    <thead>
+      <tr><th>Model</th><th>ROC AUC</th><th>F1 (churn)</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Logistic regression</td><td>0.84</td><td>0.61</td></tr>
+      <tr><td>Decision tree</td><td>0.83</td><td>0.61</td></tr>
+      <tr><td>Random forest</td><td>0.84</td><td>0.55</td></tr>
+    </tbody>
+  </table>
+
+  <p>
+    At the default threshold, logistic regression wins. Similar ROC AUC across all three says they
+    rank churn risk about equally well, so the difference is where each puts its decision boundary
+    — a threshold question rather than a model question. Lowering the threshold from 0.5 to 0.3:
+  </p>
+
+  <table>
+    <thead>
+      <tr><th>At threshold 0.3</th><th>Precision</th><th>Recall</th><th>F1</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Logistic regression</td><td>0.41</td><td>0.93</td><td>lower than at 0.5</td></tr>
+      <tr><td>Random forest</td><td>0.52</td><td>0.78</td><td>0.63</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <p>
+      The ranking flips. The random forest looked worse at the default threshold and is better at
+      the operating point a business would actually choose.
+    </p>
+  </div>
+
+  <p>
+    Model selection and threshold selection are one decision, not two. Evaluating at 0.5 alone
+    would have picked the wrong model — and 0.5 is a default, not a choice anyone made.
+  </p>
+
+  <p>
+    The error analysis is the part I would carry into a surrogate. The random forest's mistakes are
+    not scattered: they concentrate in month-to-month contracts, at moderate-to-high tenure rather
+    than among new customers, at an above-average monthly charge. That is a coherent segment whose
+    churn driver is not in the dataset. More model capacity will not fix it; more features would.
+    Knowing which of those two you are looking at is the whole game.
+  </p>
+
+  <h2>What this has to do with solvers</h2>
+
+  <p>
+    A manufactured solution lets you measure a solver's error instead of inferring it from a
+    residual, and that is why my
+    <a href="https://github.com/nilot-pal/cfd-iterative-solvers">Poisson study</a> uses one — the
+    observed order of accuracy comes out at 2.06 against a formal 2, which is checkable rather than
+    asserted. Held-out conditions and conservation checks do the same job for a surrogate.
+  </p>
+
+  <p>
+    The failure mode I care about is the quiet one. A solver that diverges has told you something.
+    A solver that converges to a plausible wrong answer has not, and neither has a surrogate that
+    interpolates beautifully inside its training envelope and is confidently wrong outside it.
+    Both need an external reference and someone willing to go looking.
+  </p>
+
+  <h2>The code</h2>
+
+  <ul class="repos">
+    <li>
+      <a href="https://github.com/nilot-pal/text-classification">text-classification</a>
+      <p>
+        TF–IDF baselines against DistilBERT on SMS spam. ROC and precision–recall curves,
+        threshold tuning, and the error analysis behind the table above.
+      </p>
+    </li>
+    <li>
+      <a href="https://github.com/nilot-pal/churn-prediction">churn-prediction</a>
+      <p>
+        End to end in one notebook: EDA, preprocessing pipelines, three models, feature importance
+        cross-checked across all three, threshold tuning against business cost, and error analysis.
+      </p>
+    </li>
+    <li>
+      <a href="https://github.com/nilot-pal/Membrane-permeability-using-ML">Membrane-permeability-using-ML</a>
+      <p>
+        Predicting whether a drug-like molecule crosses a lipid membrane from its SMILES string
+        alone. A four-person course project; I built the RDKit feature generation — 200 molecular
+        descriptors and 1024-bit Morgan fingerprints — and the cross-validated regularisation
+        search and learning-curve diagnostics for the Lasso model.
+      </p>
+    </li>
+  </ul>
+
+</article></main>
+
+<footer class="site">
+  <div class="wrap">
+    Blacksburg, Virginia ·
+    <a href="mailto:nilotpalc@vt.edu">nilotpalc@vt.edu</a> ·
+    <a href="https://github.com/nilot-pal">github.com/nilot-pal</a>
+  </div>
+</footer>
+
+</body>
+</html>
