@@ -58,20 +58,45 @@
     I was aiming at actually clock <em>slower</em> — 2.45 GHz against 2.75 GHz on the normal queue.
   </p>
 
+  <p>
+    Both of those are true, about different questions. Memory capacity per rank decides whether
+    the job runs at all — below the threshold it is killed, not slowed. Clock speed decides
+    single-node throughput. Neither predicts what happened next.
+  </p>
+
+  <p>
+    Standard practice for this solver is to <em>minimise</em> node count. Domain decomposition
+    makes the partitions interdependent, every iteration exchanges boundary data between ranks,
+    and across a network that costs 10–100× what it costs inside a node. More nodes should mean a
+    slower run.
+  </p>
+
+  <p>
+    It did the opposite. Holding 64 cores per node and adding nodes: <strong>838 s → 711 s →
+    530 s</strong> across one, two and three. At 14 cores per node, 2269 s on one node fell to
+    <strong>576 s on sixteen</strong> — roughly a 6× speedup where the textbook predicts a
+    penalty.
+  </p>
+
   <div class="callout">
     <p>
-      <strong>Both were right, about different questions.</strong> Memory per core decides whether
-      the job runs at all — below the threshold it is killed, not slowed. Clock speed and
-      scaling across nodes decide how fast it runs once it fits. Conflating feasibility with
-      performance is what sends people shopping for the wrong hardware.
+      Shown the numbers, the university's research computing director called it
+      <em>"generally the opposite of what I would expect"</em> — and gave the explanation. The
+      workload is not compute-bound. It is limited by storage I/O and memory throughput, so
+      spreading it across more machines multiplies the aggregate I/O capacity and puts the work on
+      more independent CPU–memory buses. The communication penalty is real and the bandwidth gain
+      is simply bigger.
     </p>
   </div>
 
   <p>
-    The real gain came from the interconnect, which the memory hypothesis would have missed
-    entirely. Holding 64 cores per node and adding nodes: <strong>838 s → 711 s → 530 s</strong>
-    across one, two and three. At 14 cores per node, 2269 s on one node fell to 576 s on sixteen.
-    Extrapolated to 16 nodes × 64 cores the month-long case lands near <strong>8.75 days</strong> —
+    So the original memory instinct was right about the mechanism and wrong about the remedy. The
+    answer was not one machine with more memory — it was more machines, each with its own memory
+    bus. A large-memory node would have made it worse, since those clock slower.
+  </p>
+
+  <p>
+    Extrapolated to 16 nodes × 64 cores the month-long case lands near <strong>8.75 days</strong>,
     bounded not by hardware but by the 400 ANSYS licences the group can hold at once.
   </p>
 
@@ -82,10 +107,26 @@
   </p>
 
   <p>
-    That changed what we asked for: normal-queue nodes in quantity rather than a single large-memory
-    machine, and licence capacity as a first-class constraint rather than an afterthought.
-    <strong>100M+ cell full-annulus simulations became feasible for the group for the first
-    time</strong>, and the group moved from one workstation to the cluster.
+    That changed what we asked for: normal-queue nodes in quantity rather than a single
+    large-memory machine, and licence capacity as a first-class constraint rather than an
+    afterthought. <strong>100M+ cell full-annulus simulations became feasible for the group for
+    the first time</strong>, and the group moved off one workstation and onto the cluster.
+  </p>
+
+  <p>
+    None of this was my dissertation. It was a side investigation that the whole group ended up
+    running on. A master's student completed an LES study in three months on the strength of it,
+    and a colleague took the method further — benchmarking Owl against Tinkercliffs on NASA
+    Stage 35 and measuring wall-clock-per-iteration improvements of up to <strong>89%</strong>
+    from multi-node arrangements. His report credits the original benchmark and records the
+    finding that started it: past 64 cores the cluster beat my workstation by only 20–30%, and
+    the real gain was multi-node.
+  </p>
+
+  <p>
+    One methodological note from that follow-up worth keeping: benchmark numbers fluctuated until
+    jobs were submitted with <code>--exclusive</code>. Sharing a node with another tenant makes
+    timings unrepeatable, and a scaling study built on unrepeatable timings measures nothing.
   </p>
 
   <p>
@@ -103,6 +144,28 @@
     bookkeeping</strong>, the integer stack and track-info structures, once counts climbed far
     enough.
   </p>
+
+  <table>
+    <tr><th></th><th>Injected</th><th>Grew to</th><th>Track file</th><th>Outcome</th></tr>
+    <tr><td>Workstation</td><td>1,000</td><td>~6,000 (6×)</td><td>1.35 GB</td><td>completed</td></tr>
+    <tr><td>Cluster, 6 nodes × 64 ranks</td><td>500,000</td><td><strong>~3.4 million</strong> (6.8×)</td><td><strong>444 GB</strong></td><td>killed</td></tr>
+  </table>
+
+  <p>
+    The multiplication factor is stable at roughly 6–7×; what changes is the absolute scale, and
+    with it the bookkeeping. The solver's static memory flags do not touch this — they size the
+    general solver pools, not particle multiplication, fragment lifetime, or how much history is
+    kept per particle.
+  </p>
+
+  <div class="callout">
+    <p>
+      <strong>The pressure is per-rank, not per-node.</strong> Breakage concentrates where impacts
+      concentrate — blade, hub, shroud — so a few ranks carry far more particles than the rest.
+      The job dies when the worst rank hits its own allocation limit, which happens while total
+      node memory still looks comfortable. Watching the node-level number tells you nothing.
+    </p>
+  </div>
 
   <p>
     There was an easy way out. Inject fewer particles, write less trajectory output, and the
