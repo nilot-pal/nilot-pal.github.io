@@ -39,24 +39,107 @@
 
   <p>
     The instinct in that situation is to ask for more cores. I ran a systematic scaling and
-    performance study on our Slurm clusters instead, across node counts, rank layouts and memory
-    configurations. <strong>The binding constraint was memory bandwidth and per-node memory, not
-    core count.</strong> Past a certain rank density the cores were waiting, and adding more made
-    it worse.
+    performance study instead — the lab workstation against three Slurm partitions, across core
+    counts, node counts and memory configurations.
   </p>
 
   <p>
-    That result changed what we bought. It fed directly into hardware and licence procurement
-    decisions, and <strong>100M+ cell full-annulus simulations became feasible for the group for
-    the first time.</strong>
+    More cores on one machine is not the answer. On the workstation the wall clock bottoms out and
+    then <em>rises</em>: 965 s at 68 cores, <strong>1002 s at 110</strong>. Adding cores made it
+    slower. The cluster scaled 3.7× going from 8 to 64 cores at about 45% efficiency, against 1.8×
+    at 25% on the workstation, and at 96 cores the same case ran roughly 30% faster —
+    a one-month simulation becoming about three weeks.
+  </p>
+
+  <p>
+    My working hypothesis was that the constraint was memory, since a job had already been killed
+    outright on a partition with 2 GB per core. A computational scientist at the university's HPC
+    centre corrected the mechanism: memory has little to do with speed, and the large-memory nodes
+    I was aiming at actually clock <em>slower</em> — 2.45 GHz against 2.75 GHz on the normal queue.
   </p>
 
   <div class="callout">
     <p>
-      The useful output of a scaling study is rarely a speedup number. It is finding out which
-      resource you are actually short of, which is often not the one being requested.
+      <strong>Both were right, about different questions.</strong> Memory per core decides whether
+      the job runs at all — below the threshold it is killed, not slowed. Clock speed and
+      scaling across nodes decide how fast it runs once it fits. Conflating feasibility with
+      performance is what sends people shopping for the wrong hardware.
     </p>
   </div>
+
+  <p>
+    The real gain came from the interconnect, which the memory hypothesis would have missed
+    entirely. Holding 64 cores per node and adding nodes: <strong>838 s → 711 s → 530 s</strong>
+    across one, two and three. At 14 cores per node, 2269 s on one node fell to 576 s on sixteen.
+    Extrapolated to 16 nodes × 64 cores the month-long case lands near <strong>8.75 days</strong> —
+    bounded not by hardware but by the 400 ANSYS licences the group can hold at once.
+  </p>
+
+  <p>
+    Two smaller results from the same study: disabling hyperthreading measurably improved
+    throughput, and multi-node jobs failed with solver error 255 at certain rank counts — the
+    workaround was core counts that are not powers of two, 36 rather than 32, 68 rather than 64.
+  </p>
+
+  <p>
+    That changed what we asked for: normal-queue nodes in quantity rather than a single large-memory
+    machine, and licence capacity as a first-class constraint rather than an afterthought.
+    <strong>100M+ cell full-annulus simulations became feasible for the group for the first
+    time</strong>, and the group moved from one workstation to the cluster.
+  </p>
+
+  <p>
+    The useful output of a scaling study is rarely a speedup number. It is finding out which
+    resource you are actually short of — which is often not the one being requested, and
+    sometimes not the one you were sure of yourself.
+  </p>
+
+  <h2>When my own model broke the solver</h2>
+
+  <p>
+    The breakage model creates particles. A fragmenting parcel becomes several, those fragment
+    again, and the tracked population grows through the run. The aerothermal solve stayed stable;
+    the job died anyway — <strong>dynamic memory exhaustion inside the solver's own particle-track
+    bookkeeping</strong>, the integer stack and track-info structures, once counts climbed far
+    enough.
+  </p>
+
+  <p>
+    There was an easy way out. Inject fewer particles, write less trajectory output, and the
+    problem disappears — along with the statistics the study exists to produce. I did not want to
+    pay that before knowing whether the infrastructure could be made to carry the real workload.
+  </p>
+
+  <p>
+    So I wrote it up as an engineering question rather than a complaint and took it to the
+    university's HPC staff: scaling evidence on particle-count growth and track-file size, the
+    Slurm script and solver flags in full, and specific questions on MPI layout, memory per rank,
+    load imbalance and filesystem choice.
+  </p>
+
+  <p>
+    The diagnosis was not what I expected. The cost was not bandwidth — it was
+    <strong>many small reads and writes to remote storage</strong>. On a cluster,
+    <code>/scratch</code>, <code>/home</code> and <code>/projects</code> all live on a storage
+    cluster reached over the network, so a stream of small sequential I/O operations is dominated
+    by per-operation latency rather than throughput. It is the failure mode that does not exist on
+    a workstation with a local SSD, which is exactly why nobody arriving from one expects it.
+  </p>
+
+  <div class="callout">
+    <p>
+      Moving <code>/scratch</code> to <code>/projects</code> buys about 10%. Writing to the compute
+      node's own disk — <code>$TMPDIR</code>, <code>/localscratch/&lt;jobid&gt;</code> — is the
+      change that matters, at the cost of staging data in and out around the run.
+    </p>
+  </div>
+
+  <p>
+    Multi-node makes that harder rather than easier: every node has its own <code>$TMPDIR</code>,
+    so input has to be broadcast to each one and output gathered back before the allocation ends,
+    or it is gone with the node. Which is the recurring shape of this work — the fix is available,
+    and it costs you something in job-script complexity that you have to decide is worth paying.
+  </p>
 
   <h2>The campaigns</h2>
 
