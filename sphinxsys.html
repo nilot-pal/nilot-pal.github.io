@@ -152,8 +152,23 @@
     that paper. The fix shipped in SPHinXsys v1.2.
   </p>
 
+  <h2>The code</h2>
+
   <p>
-    The code and data are in a repository I am tidying for release; it will be linked here.
+    <a href="https://github.com/nilot-pal/sph-high-re-surface-tension"><strong>sph-high-re-surface-tension</strong></a>
+    holds the diagnostic sequence, the HLLC Riemann solver I wrote while chasing the failure, and
+    the parameter studies underneath it — a screening design over reference velocity and viscosity,
+    a one-factor-at-a-time sweep of density, viscosity, surface tension and length scale, a ladder
+    of dissipation-limiter settings, and a 2&nbsp;×&nbsp;2 factorial on Poiseuille flow, which is
+    the only case there with a closed-form answer to check against. Video of all 29 runs.
+  </p>
+
+  <p>
+    One result in it that is not in the issue reports: driving the limiter to η&nbsp;=&nbsp;10²⁰
+    does <em>not</em> recover the dissipative solver — maximum spread ratio 7.8 against 5.37 on the
+    same 2D case. The clamp in the acoustic form zeroes the dissipation on expansion however large
+    η becomes, so tuning η against experiment sweeps a family that never reaches the dissipative
+    solver as an endpoint.
   </p>
 
 </article></main>

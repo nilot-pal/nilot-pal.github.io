@@ -82,6 +82,38 @@
     </p>
   </a>
 
+  <h2 class="section">Code</h2>
+
+  <ul class="repos">
+    <li>
+      <a href="https://github.com/nilot-pal/sph-high-re-surface-tension">sph-high-re-surface-tension</a>
+      <p>
+        The instability above, in full: the diagnostic sequence, an HLLC Riemann solver, and the
+        parameter studies underneath — a screening design, a one-factor-at-a-time sweep, a
+        dissipation-limiter ladder, and a 2&nbsp;×&nbsp;2 factorial on Poiseuille flow. Video of
+        all 29 runs.
+      </p>
+    </li>
+    <li>
+      <a href="https://github.com/nilot-pal/Lid-driven-cavity">Lid-driven-cavity</a>
+      <p>
+        Incompressible Navier–Stokes on a staggered grid, fractional-step, validated against Ghia
+        <em>et&nbsp;al.</em> (1982). It diverged at a time step below both the linear CFL and the
+        viscous limit; the cause is a non-linear CFL condition on higher-order explicit
+        integrators, and the solver now takes its step from that.
+      </p>
+    </li>
+    <li>
+      <a href="https://github.com/nilot-pal/cfd-iterative-solvers">cfd-iterative-solvers</a>
+      <p>
+        The companion study. Gauss-Seidel, SOR and ADI on a manufactured Poisson problem with a
+        known exact solution, so error is measured rather than inferred from the residual.
+        Observed order of accuracy 2.06; ADI reaches tolerance in about a quarter of the
+        iterations SOR needs, at both resolutions.
+      </p>
+    </li>
+  </ul>
+
   <h2 class="section">Elsewhere</h2>
   <p>
     Acknowledged in
