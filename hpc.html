@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Making infeasible runs feasible — Nilotpal Chakraborty</title>
+<title>Making infeasible runs feasible, Nilotpal Chakraborty</title>
 <meta name="description" content="A scaling study that found the bottleneck was memory rather than cores, and the data pipelines that turned hundreds of gigabytes of solver output into something you can model.">
 <link rel="stylesheet" href="style.css">
 </head>
@@ -33,13 +33,13 @@
 
   <p>
     Resolving what happens to particles through a multi-stage compressor properly means a
-    <strong>full-annulus</strong> simulation — every blade passage, not one sector with periodic
+    <strong>full-annulus</strong> simulation: every blade passage, not one sector with periodic
     boundaries. That is a 100M+ cell problem, and the group could not run it.
   </p>
 
   <p>
     The instinct in that situation is to ask for more cores. I ran a systematic scaling and
-    performance study instead — the lab workstation against three Slurm partitions, across core
+    performance study instead: the lab workstation against three Slurm partitions, across core
     counts, node counts and memory configurations.
   </p>
 
@@ -47,20 +47,19 @@
     More cores on one machine is not the answer. On the workstation the wall clock bottoms out and
     then <em>rises</em>: 965 s at 68 cores, <strong>1002 s at 110</strong>. Adding cores made it
     slower. The cluster scaled 3.7× going from 8 to 64 cores at about 45% efficiency, against 1.8×
-    at 25% on the workstation, and at 96 cores the same case ran roughly 30% faster —
-    a one-month simulation becoming about three weeks.
+    at 25% on the workstation, and at 96 cores the same case ran roughly 30% faster, a one-month simulation becoming about three weeks.
   </p>
 
   <p>
     My working hypothesis was that the constraint was memory, since a job had already been killed
     outright on a partition with 2 GB per core. A computational scientist at the university's HPC
     centre corrected the mechanism: memory has little to do with speed, and the large-memory nodes
-    I was aiming at actually clock <em>slower</em> — 2.45 GHz against 2.75 GHz on the normal queue.
+    I was aiming at actually clock <em>slower</em>, 2.45 GHz against 2.75 GHz on the normal queue.
   </p>
 
   <p>
     Both of those are true, about different questions. Memory capacity per rank decides whether
-    the job runs at all — below the threshold it is killed, not slowed. Clock speed decides
+    the job runs at all: below the threshold it is killed, not slowed. Clock speed decides
     single-node throughput. Neither predicts what happened next.
   </p>
 
@@ -74,14 +73,14 @@
   <p>
     It did the opposite. Holding 64 cores per node and adding nodes: <strong>838 s → 711 s →
     530 s</strong> across one, two and three. At 14 cores per node, 2269 s on one node fell to
-    <strong>576 s on sixteen</strong> — a <strong>3.9× speed-up</strong> where the textbook
+    <strong>576 s on sixteen</strong>, a <strong>3.9× speed-up</strong> where the textbook
     predicts a penalty.
   </p>
 
   <div class="callout">
     <p>
       Shown the numbers, the university's research computing director called it
-      <em>"generally the opposite of what I would expect"</em> — and gave the explanation. The
+      <em>"generally the opposite of what I would expect"</em>, and gave the explanation. The
       workload is not compute-bound. It is limited by storage I/O and memory throughput, so
       spreading it across more machines multiplies the aggregate I/O capacity and puts the work on
       more independent CPU–memory buses. The communication penalty is real and the bandwidth gain
@@ -91,7 +90,7 @@
 
   <p>
     So the original memory instinct was right about the mechanism and wrong about the remedy. The
-    answer was not one machine with more memory — it was more machines, each with its own memory
+    answer was not one machine with more memory; it was more machines, each with its own memory
     bus. A large-memory node would have made it worse, since those clock slower.
   </p>
 
@@ -104,7 +103,7 @@
 
   <p>
     Two smaller results from the same study: disabling hyperthreading measurably improved
-    throughput, and multi-node jobs failed with solver error 255 at certain rank counts — the
+    throughput, and multi-node jobs failed with solver error 255 at certain rank counts: the
     workaround was core counts that are not powers of two, 36 rather than 32, 68 rather than 64.
   </p>
 
@@ -117,8 +116,7 @@
 
   <div class="callout">
     <p>
-      The part I did not anticipate: once the study established that licences — not cores, not
-      memory — were the ceiling on how fast the group could run, <strong>the allocation supporting
+      The part I did not anticipate: once the study established that licences (not cores, not memory) were the ceiling on how fast the group could run, <strong>the allocation supporting
       our sponsor-facing work was doubled</strong>, from the 400 I had been working within to 800.
       A benchmark is an argument about where money should go, and it is a much better argument
       than an opinion.
@@ -128,7 +126,7 @@
   <p>
     None of this was my dissertation. It was a side investigation that the whole group ended up
     running on. A master's student completed an LES study in three months on the strength of it,
-    and a colleague took the method further — benchmarking Owl against Tinkercliffs on NASA
+    and a colleague took the method further, benchmarking Owl against Tinkercliffs on NASA
     Stage 35 and measuring wall-clock-per-iteration improvements of up to <strong>89%</strong>
     from multi-node arrangements. His report credits the original benchmark and records the
     finding that started it: past 64 cores the cluster beat my workstation by only 20–30%, and
@@ -143,7 +141,7 @@
 
   <p>
     The useful output of a scaling study is rarely a speedup number. It is finding out which
-    resource you are actually short of — which is often not the one being requested, and
+    resource you are actually short of, which is often not the one being requested, and
     sometimes not the one you were sure of yourself.
   </p>
 
@@ -152,7 +150,7 @@
   <p>
     The breakage model creates particles. A fragmenting parcel becomes several, those fragment
     again, and the tracked population grows through the run. The aerothermal solve stayed stable;
-    the job died anyway — <strong>dynamic memory exhaustion inside the solver's own particle-track
+    the job died anyway: <strong>dynamic memory exhaustion inside the solver's own particle-track
     bookkeeping</strong>, the integer stack and track-info structures, once counts climbed far
     enough.
   </p>
@@ -165,7 +163,7 @@
 
   <p>
     The multiplication factor is stable at roughly 6–7×; what changes is the absolute scale, and
-    with it the bookkeeping. The solver's static memory flags do not touch this — they size the
+    with it the bookkeeping. The solver's static memory flags do not touch this; they size the
     general solver pools, not particle multiplication, fragment lifetime, or how much history is
     kept per particle.
   </p>
@@ -173,7 +171,7 @@
   <div class="callout">
     <p>
       <strong>The pressure is per-rank, not per-node.</strong> Breakage concentrates where impacts
-      concentrate — blade, hub, shroud — so a few ranks carry far more particles than the rest.
+      concentrate (blade, hub, shroud), so a few ranks carry far more particles than the rest.
       The job dies when the worst rank hits its own allocation limit, which happens while total
       node memory still looks comfortable. Watching the node-level number tells you nothing.
     </p>
@@ -181,7 +179,7 @@
 
   <p>
     There was an easy way out. Inject fewer particles, write less trajectory output, and the
-    problem disappears — along with the statistics the study exists to produce. I did not want to
+    problem disappears, along with the statistics the study exists to produce. I did not want to
     pay that before knowing whether the infrastructure could be made to carry the real workload.
   </p>
 
@@ -193,7 +191,7 @@
   </p>
 
   <p>
-    The diagnosis was not what I expected. The cost was not bandwidth — it was
+    The diagnosis was not what I expected. The cost was not bandwidth; it was
     <strong>many small reads and writes to remote storage</strong>. On a cluster,
     <code>/scratch</code>, <code>/home</code> and <code>/projects</code> all live on a storage
     cluster reached over the network, so a stream of small sequential I/O operations is dominated
@@ -204,7 +202,7 @@
   <div class="callout">
     <p>
       Moving <code>/scratch</code> to <code>/projects</code> buys about 10%. Writing to the compute
-      node's own disk — <code>$TMPDIR</code>, <code>/localscratch/&lt;jobid&gt;</code> — is the
+      node's own disk (<code>$TMPDIR</code>, <code>/localscratch/&lt;jobid&gt;</code>) is the
       change that matters, at the cost of staging data in and out around the run.
     </p>
   </div>
@@ -212,7 +210,7 @@
   <p>
     Multi-node makes that harder rather than easier: every node has its own <code>$TMPDIR</code>,
     so input has to be broadcast to each one and output gathered back before the allocation ends,
-    or it is gone with the node. Which is the recurring shape of this work — the fix is available,
+    or it is gone with the node. Which is the recurring shape of this work: the fix is available,
     and it costs you something in job-script complexity that you have to decide is worth paying.
   </p>
 
@@ -235,7 +233,7 @@
   <p>
     So the analysis is a pipeline: automated, reproducible, and written to be run again. One
     <strong>254 GB</strong> particle-track file is parsed down to
-    <strong>10,797 mass-verified fracture events</strong> — every one checked for mass conservation
+    <strong>10,797 mass-verified fracture events</strong>: every one checked for mass conservation
     on the way through, because a fracture event that does not conserve mass is a bug in my model
     and I would rather find it than average over it.
   </p>
@@ -244,7 +242,7 @@
     That dataset is what makes the reduced-order modelling possible: a breakage model collapsed to
     <strong>three substrate-independent parameters</strong> (RMSE 0.051 across 48 conditions), with
     <strong>leave-one-surface-out cross-validation transferring between alloys at ΔRMSE &lt;
-    0.001</strong> — a held-out generalisation test, not a fit.
+    0.001</strong>: a held-out generalisation test, not a fit.
   </p>
 
   <h2>Infrastructure as an output</h2>
@@ -269,8 +267,7 @@
       <p>
         Every number on this page, with the measurements underneath it. Wall-clock timings as
         CSV, the figures regenerated from those CSVs by a script rather than drawn by hand, the
-        sanitised Slurm job scripts, and the full write-up of the dynamic-memory and I/O work —
-        the failure signature, the per-rank evidence, and the questions I took to the HPC centre.
+        sanitised Slurm job scripts, and the full write-up of the dynamic-memory and I/O work, the failure signature, the per-rank evidence, and the questions I took to the HPC centre.
       </p>
     </li>
   </ul>
@@ -284,8 +281,7 @@
   <h2>Next</h2>
 
   <p>
-    Learned surrogates for the expensive particle-laden physics, on the open NASA Rotor 35 geometry
-    — with the evaluation done properly: held-out conditions, conservation checks on the predicted
+    Learned surrogates for the expensive particle-laden physics, on the open NASA Rotor 35 geometry, with the evaluation done properly: held-out conditions, conservation checks on the predicted
     distributions, and an honest map of where the surrogate stops being trustworthy. Anyone can
     train a surrogate. The useful question is whether you should believe it.
   </p>

@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Nilotpal Chakraborty — solver internals and numerical methods</title>
-<meta name="description" content="PhD candidate at Virginia Tech. I build the numerical machinery that closed solvers do not provide — special functions, state channels, Riemann solvers — for large-scale simulation on HPC.">
+<title>Nilotpal Chakraborty, solver internals and numerical methods</title>
+<meta name="description" content="PhD candidate at Virginia Tech. I build the numerical machinery that closed solvers do not provide: special functions, state channels and Riemann solvers, for large-scale simulation on HPC.">
 <meta property="og:title" content="Nilotpal Chakraborty">
 <meta property="og:description" content="I build the numerical machinery that closed solvers do not provide.">
 <meta property="og:type" content="profile">
@@ -44,7 +44,7 @@
     </p>
 
     <p>
-      My application domain is particle ingestion in gas-turbine compressors — 100M+ cell campaigns
+      My application domain is particle ingestion in gas-turbine compressors: 100M+ cell campaigns
       on HPC, in the Pratt&nbsp;&amp;&nbsp;Whitney–Rolls-Royce Academic Alliance. The portable
       part is the machinery, not the domain.
     </p>
@@ -60,7 +60,7 @@
   <a class="card" href="/sphinxsys.html">
     <h3>I found a numerical instability in an open-source SPH library</h3>
     <p>
-      Its multiphase surface-tension model fails above Re ≈ 10³ — the fluid particles do not
+      Its multiphase surface-tension model fails above Re ≈ 10³: the fluid particles do not
       disorder, they leave the domain. I isolated it, reported it, and the maintainers'
       fix is now in a CMAME paper that acknowledges me. <span class="more">Read →</span>
     </p>
@@ -79,7 +79,7 @@
     <h3>I made simulations possible that the group could not run before</h3>
     <p>
       Adding cores made the workstation slower. A scaling study across four machines separated
-      what decides whether a job runs at all from what decides how fast — and took a month-long
+      what decides whether a job runs at all from what decides how fast, and took a month-long
       simulation to about a week. <span class="more">Read →</span>
     </p>
   </a>
@@ -101,7 +101,7 @@
       <a href="https://github.com/nilot-pal/sph-high-re-surface-tension">sph-high-re-surface-tension</a>
       <p>
         The instability above, in full: the diagnostic sequence, an HLLC Riemann solver, and the
-        parameter studies underneath — a screening design, a one-factor-at-a-time sweep, a
+        parameter studies underneath: a screening design, a one-factor-at-a-time sweep, a
         dissipation-limiter ladder, and a 2&nbsp;×&nbsp;2 factorial on Poiseuille flow. Video of
         all 29 runs.
       </p>

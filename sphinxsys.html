@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>A surface-tension model that fails at high Reynolds number — Nilotpal Chakraborty</title>
+<title>A surface-tension model that fails at high Reynolds number, Nilotpal Chakraborty</title>
 <meta name="description" content="How I found, isolated and reported a numerical instability in SPHinXsys, and what the maintainers did about it.">
 <link rel="stylesheet" href="style.css">
 </head>
@@ -30,7 +30,7 @@
   </p>
 
   <p>
-    In 2023 I was simulating supercooled large droplets hitting an aircraft surface — the physics
+    In 2023 I was simulating supercooled large droplets hitting an aircraft surface, the physics
     behind in-flight icing certification. I used
     <a href="https://github.com/Xiangyu-Hu/SPHinXsys">SPHinXsys</a>, a well-regarded open-source
     smoothed-particle-hydrodynamics library, and the droplets kept coming apart.
@@ -52,7 +52,7 @@
   <table>
     <tr><th>Setup</th><th>Result</th></tr>
     <tr><td>3D droplet impact, Re 7154, We 259</td><td>Droplet breaks up instead of spreading</td></tr>
-    <tr><td>Square droplet relaxing to a circle, Re ≈ 1</td><td>Correct — a clean circle at rest</td></tr>
+    <tr><td>Square droplet relaxing to a circle, Re ≈ 1</td><td>Correct, a clean circle at rest</td></tr>
     <tr><td>The same at Re ≈ 10³</td><td><strong>Every fluid particle gone by t ≈ 0.4</strong></td></tr>
     <tr><td>The same with maximum numerical dissipation</td><td>Settles, but drifts off-centre and particles pass through the wall</td></tr>
     <tr><td>Capillary oscillation against a published benchmark</td><td>Diverges <strong>even at low Re</strong>, once the interface is moving</td></tr>
@@ -70,7 +70,7 @@
     <figcaption>
       The benign case: a square patch of water relaxing to a circle under surface tension at low
       Reynolds number, where the shipped model behaves correctly. Raising the density by three
-      orders of magnitude — changing nothing else — makes the particles disappear.
+      orders of magnitude (changing nothing else) makes the particles disappear.
     </figcaption>
   </figure>
 
@@ -78,7 +78,7 @@
     <img src="assets/com-resolution.jpg" alt="Mass-centre position against time at three particle resolutions, showing the curves collapsing onto each other">
     <figcaption>
       The same oscillation at 900, 3600 and 14 400 particles. The three collapse onto one another,
-      so the divergence from the benchmark is not a discretisation artefact — refining the mesh
+      so the divergence from the benchmark is not a discretisation artefact, refining the mesh
       does not make it go away.
     </figcaption>
   </figure>
@@ -99,7 +99,7 @@
 
   <div class="callout">
     <p>
-      This is the part I would want an interviewer to ask about. Not "I found a bug" — anyone can
+      This is the part I would want an interviewer to ask about. Not "I found a bug", anyone can
       hit a bug. The question worth answering is how you tell the difference between a library
       being wrong and you being wrong, when the library is used by hundreds of people and you have
       been doing SPH for eight months.
@@ -111,9 +111,8 @@
   <p>
     The leading suspect was the library's Riemann solver: it shipped a linearised, Roe-type solver
     whose numerical dissipation is <em>implicit</em>, so you cannot easily separate the physics from
-    the damping. I implemented an <strong>HLLC approximate Riemann solver</strong> — wave-speed
-    estimates, contact-wave state selection, equation-of-state recovery of the intermediate state —
-    and wired it into both the fluid–fluid and fluid–wall integration paths.
+    the damping. I implemented an <strong>HLLC approximate Riemann solver</strong>: wave-speed
+    estimates, contact-wave state selection, equation-of-state recovery of the intermediate state, and wired it into both the fluid–fluid and fluid–wall integration paths.
   </p>
 
   <p>
@@ -126,14 +125,13 @@
   <p>
     I reported it upstream in
     <a href="https://github.com/Xiangyu-Hu/SPHinXsys/issues/378">#378</a> (August 2023, the
-    benchmark I could not reproduce) and
+    benchmark I could not reproduce), and
     <a href="https://github.com/Xiangyu-Hu/SPHinXsys/issues/497">#497</a> (December 2023, the
     high-Re failure with the parameter study).
   </p>
 
   <p>
-    The maintainers traced it to <em>zero-surface-energy modes</em> — the surface-tension
-    contributions of symmetrically placed neighbours cancel, so the force is underestimated — and
+    The maintainers traced it to <em>zero-surface-energy modes</em> (the surface-tension contributions of symmetrically placed neighbours cancel, so the force is underestimated), and
     fixed it with a momentum-conserving penalty force, reaching Re = 10,000 and We = 25,000. That
     work was published in
     <a href="https://doi.org/10.1016/j.cma.2025.118147"><em>Computer Methods in Applied Mechanics
@@ -158,7 +156,7 @@
   <p>
     <a href="https://github.com/nilot-pal/sph-high-re-surface-tension"><strong>sph-high-re-surface-tension</strong></a>
     holds the diagnostic sequence, the HLLC Riemann solver I wrote while chasing the failure, and
-    the parameter studies underneath it — a screening design over reference velocity and viscosity,
+    the parameter studies underneath it: a screening design over reference velocity and viscosity,
     a one-factor-at-a-time sweep of density, viscosity, surface tension and length scale, a ladder
     of dissipation-limiter settings, and a 2&nbsp;×&nbsp;2 factorial on Poiseuille flow, which is
     the only case there with a closed-form answer to check against. Video of all 29 runs.
@@ -166,7 +164,7 @@
 
   <p>
     One result in it that is not in the issue reports: driving the limiter to η&nbsp;=&nbsp;10²⁰
-    does <em>not</em> recover the dissipative solver — maximum spread ratio 7.8 against 5.37 on the
+    does <em>not</em> recover the dissipative solver, maximum spread ratio 7.8 against 5.37 on the
     same 2D case. The clamp in the acoustic form zeroes the dissipation on expansion however large
     η becomes, so tuning η against experiment sweeps a family that never reaches the dissipative
     solver as an endpoint.

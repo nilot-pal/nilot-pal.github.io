@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Deciding whether to believe a model — Nilotpal Chakraborty</title>
+<title>Deciding whether to believe a model, Nilotpal Chakraborty</title>
 <meta name="description" content="Machine learning projects built around evaluation rather than accuracy: threshold tuning under asymmetric costs, and why the model that wins on F1 is often not the one to deploy.">
 <link rel="stylesheet" href="style.css">
 </head>
@@ -25,7 +25,7 @@
 
   <h1>Deciding whether to believe a model</h1>
   <p class="standfirst">
-    Anyone can train a surrogate. The useful question is whether you should believe it — and that
+    Anyone can train a surrogate. The useful question is whether you should believe it, and that
     is a question about evaluation, not about architecture.
   </p>
 
@@ -73,7 +73,7 @@
   </p>
 
   <p>
-    DistilBERT wins on recall and F1, and the margin is real — 0.83 to 0.97 is about 21 more spam
+    DistilBERT wins on recall and F1, and the margin is real, 0.83 to 0.97 is about 21 more spam
     messages caught out of 149. But translated into messages on the test set:
   </p>
 
@@ -89,7 +89,7 @@
 
   <div class="callout">
     <p>
-      Logistic regression is at precision 1.00 — it never touches a real message. DistilBERT
+      Logistic regression is at precision 1.00, it never touches a real message. DistilBERT
       catches 21 more spam messages and introduces an error class the baseline does not have
       at all.
     </p>
@@ -97,7 +97,7 @@
 
   <p>
     Those two mistakes are not worth the same. A spam message in the inbox is deleted in a second.
-    A real message silently moved to a spam folder can be missed entirely — a verification code, an
+    A real message silently moved to a spam folder can be missed entirely: a verification code, an
     appointment, a person. If the cost ratio is anything like ten to one, the baseline's error
     profile is the better one despite losing on every headline metric.
   </p>
@@ -129,8 +129,7 @@
 
   <p>
     At the default threshold, logistic regression wins. Similar ROC AUC across all three says they
-    rank churn risk about equally well, so the difference is where each puts its decision boundary
-    — a threshold question rather than a model question. Lowering the threshold from 0.5 to 0.3:
+    rank churn risk about equally well, so the difference is where each puts its decision boundary, a threshold question rather than a model question. Lowering the threshold from 0.5 to 0.3:
   </p>
 
   <table>
@@ -152,7 +151,7 @@
 
   <p>
     Model selection and threshold selection are one decision, not two. Evaluating at 0.5 alone
-    would have picked the wrong model — and 0.5 is a default, not a choice anyone made.
+    would have picked the wrong model, and 0.5 is a default, not a choice anyone made.
   </p>
 
   <p>
@@ -168,7 +167,7 @@
   <p>
     A manufactured solution lets you measure a solver's error instead of inferring it from a
     residual, and that is why my
-    <a href="https://github.com/nilot-pal/cfd-iterative-solvers">Poisson study</a> uses one — the
+    <a href="https://github.com/nilot-pal/cfd-iterative-solvers">Poisson study</a> uses one: the
     observed order of accuracy comes out at 2.06 against a formal 2, which is checkable rather than
     asserted. Held-out conditions and conservation checks do the same job for a surrogate.
   </p>
@@ -201,8 +200,7 @@
       <a href="https://github.com/nilot-pal/Membrane-permeability-using-ML">Membrane-permeability-using-ML</a>
       <p>
         Predicting whether a drug-like molecule crosses a lipid membrane from its SMILES string
-        alone. A four-person course project; I built the RDKit feature generation — 200 molecular
-        descriptors and 1024-bit Morgan fingerprints — and the cross-validated regularisation
+        alone. A four-person course project; I built the RDKit feature generation (200 molecular descriptors and 1024-bit Morgan fingerprints), and the cross-validated regularisation
         search and learning-curve diagnostics for the Lasso model.
       </p>
     </li>
