@@ -278,12 +278,34 @@
     that worked without my ever establishing why.
   </p>
 
-  <h2>Next</h2>
+  <h2>Recovering what the solver does not export</h2>
 
   <p>
-    Learned surrogates for the expensive particle-laden physics, on the open NASA Rotor 35 geometry, with the evaluation done properly: held-out conditions, conservation checks on the predicted
-    distributions, and an honest map of where the surrogate stops being trustworthy. Anyone can
-    train a surrogate. The useful question is whether you should believe it.
+    CFX writes one row per particle-wall impact and does not write which particle it belongs to.
+    So you can count impacts, and you cannot ask the question that decides whether an erosion map
+    means anything: how many particles is it made of?
+  </p>
+
+  <p>
+    I recovered the identity by matching every impact against a <strong>14 GB</strong> trajectory
+    file on its position and velocity signature, streamed in chunks with a spatial index rather
+    than held in memory: <strong>586,764 of 586,764</strong> rotor-blade impacts attributed, to
+    two micrometres and a millimetre per second.
+  </p>
+
+  <p>
+    The answer was that <strong>4.6% of the particles produced 92% of the impacts</strong>. The
+    physical map is a narrow band at the leading edge, at 28° median incidence. The rest is a small
+    trapped population grazing the surface at 0.08°, writing hundreds of rows each. No per-surface
+    quantity can show you that, because a contour plot has no notion of a particle.
+  </p>
+
+  <p>
+    The first version of that pipeline took <strong>2 h 15 min</strong> and then ran out of memory
+    at 4.5 GB. Parallelising it bought nothing and rewriting it in C++ bought nothing, because the
+    cost was algorithmic rather than a shortage of machine. Changing the question from compare
+    everything to everything into look up the nearest few took it to four minutes on three times
+    the data. Knowing which of those two situations you are in is most of the skill.
   </p>
 
 </article></main>
