@@ -71,6 +71,7 @@ header.site nav a:hover, header.site nav a[aria-current] { color: var(--accent);
   letter-spacing: -0.02em; font-weight: 680;
 }
 .hero .role { color: var(--muted); margin: 0 0 14px; font-size: 16px; }
+.avail { color: var(--muted); font-size: 15px; margin: 22px 0 0; }
 .lede { font-size: 19px; line-height: 1.6; margin: 22px 0 0; }
 .lede strong { font-weight: 640; }
 
