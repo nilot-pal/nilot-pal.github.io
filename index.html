@@ -174,6 +174,17 @@
 
   <ul class="repos">
     <li>
+      <a href="https://github.com/nilot-pal/cuda-poisson-sor">cuda-poisson-sor</a>
+      <p>
+        Red-black SOR for the Poisson pressure solve on an NVIDIA L40S, against a CPU baseline in
+        the same language with the same compiler and flags. The reordering costs no convergence,
+        the GPU overtakes one core between 65² and 129², and the kernel is bandwidth-bound at
+        <strong>89.6% of achievable DRAM throughput</strong>. It was moving 2.29× the bytes it
+        needed; splitting the colours into separate arrays cut traffic to 1.48× and runtime by
+        1.55×, so <strong>the runtime is the traffic, to within one percent</strong>.
+      </p>
+    </li>
+    <li>
       <a href="https://github.com/nilot-pal/cfd-iterative-solvers">cfd-iterative-solvers</a>
       <p>
         The companion study. Gauss-Seidel, SOR and ADI on a manufactured Poisson problem with a
