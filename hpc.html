@@ -245,39 +245,6 @@
     0.001</strong>: a held-out generalisation test, not a fit.
   </p>
 
-  <h2>Infrastructure as an output</h2>
-
-  <p>
-    Solver extensions, tracking methodology, job workflow, analysis pipeline: this is now the
-    infrastructure the group's other doctoral projects and its sponsor deliverables run on, and I
-    train the junior students on it.
-  </p>
-
-  <p>
-    I mention it because it is the part that does not appear in a publication list. Building the
-    thing several other people's work depends on is a different contribution from writing a paper,
-    and I would rather be measured on it.
-  </p>
-
-  <h2>The code and the data</h2>
-
-  <ul class="repos">
-    <li>
-      <a href="https://github.com/nilot-pal/cfx-cluster-scaling">cfx-cluster-scaling</a>
-      <p>
-        Every number on this page, with the measurements underneath it. Wall-clock timings as
-        CSV, the figures regenerated from those CSVs by a script rather than drawn by hand, the
-        sanitised Slurm job scripts, and the full write-up of the dynamic-memory and I/O work, the failure signature, the per-rank evidence, and the questions I took to the HPC centre.
-      </p>
-    </li>
-  </ul>
-
-  <p>
-    It also records what to distrust: each point is a single run rather than an average, the
-    8.75-day figure is an extrapolation, and the error-255 workaround is documented as something
-    that worked without my ever establishing why.
-  </p>
-
   <h2>Recovering what the solver does not export</h2>
 
   <p>
@@ -306,6 +273,48 @@
     cost was algorithmic rather than a shortage of machine. Changing the question from compare
     everything to everything into look up the nearest few took it to four minutes on three times
     the data. Knowing which of those two situations you are in is most of the skill.
+  </p>
+
+  <h2>Infrastructure as an output</h2>
+
+  <p>
+    Solver extensions, tracking methodology, job workflow, analysis pipeline: this is now the
+    infrastructure the group's other doctoral projects and its sponsor deliverables run on, and I
+    train the junior students on it.
+  </p>
+
+  <p>
+    I mention it because it is the part that does not appear in a publication list. Building the
+    thing several other people's work depends on is a different contribution from writing a paper,
+    and I would rather be measured on it.
+  </p>
+
+  <h2>The code and the data</h2>
+
+  <ul class="repos">
+    <li>
+      <a href="https://github.com/nilot-pal/cfx-cluster-scaling">cfx-cluster-scaling</a>
+      <p>
+        Every number on this page, with the measurements underneath it. Wall-clock timings as
+        CSV, the figures regenerated from those CSVs by a script rather than drawn by hand, the
+        sanitised Slurm job scripts, and the full write-up of the dynamic-memory and I/O work, the failure signature, the per-rank evidence, and the questions I took to the HPC centre.
+      </p>
+    </li>
+    <li>
+      <a href="https://github.com/nilot-pal/cfx-particle-id-recovery">cfx-particle-id-recovery</a>
+      <p>
+        The attribution above: the streaming matcher, the per-particle fate pass, the record
+        layouts the vendor does not document, and the frame problem that still blocks the stator
+        surfaces and their 3.23 million impact rows. It opens with the profiling table and the two
+        things that did not work, because those took longer than the fix.
+      </p>
+    </li>
+  </ul>
+
+  <p>
+    It also records what to distrust: each point is a single run rather than an average, the
+    8.75-day figure is an extrapolation, and the error-255 workaround is documented as something
+    that worked without my ever establishing why.
   </p>
 
 </article></main>
