@@ -69,11 +69,13 @@
   </p>
 
   <a class="card" href="/sphinxsys.html">
-    <h3>I found a numerical instability in an open-source SPH library</h3>
+    <h3>I found defects in two solvers I did not write</h3>
     <p>
-      Its multiphase surface-tension model fails above Re ≈ 10³: the fluid particles do not
-      disorder, they leave the domain. I isolated it, reported it, and the maintainers'
-      fix is now in a CMAME paper that acknowledges me. <span class="more">Read →</span>
+      An open-source SPH library whose surface-tension model fails above Re ≈ 10³, where the fluid
+      particles do not disorder, they leave the domain: reported, and the maintainers' fix is now
+      in a CMAME paper that acknowledges me. And a commercial solver that silently displaces
+      particles crossing a stage interface, in all five geometries I have tested.
+      <span class="more">Read →</span>
     </p>
   </a>
 

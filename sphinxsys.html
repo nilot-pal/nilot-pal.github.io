@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>A surface-tension model that fails at high Reynolds number, Nilotpal Chakraborty</title>
-<meta name="description" content="How I found, isolated and reported a numerical instability in SPHinXsys, and what the maintainers did about it.">
+<title>Two defects in solvers I did not write, Nilotpal Chakraborty</title>
+<meta name="description" content="A surface-tension model that fails above Re 1000 in an open-source SPH library, and an undocumented particle-tracking error at rotor-stator interfaces in a commercial solver.">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -23,8 +23,15 @@
 
 <main class="wrap"><article>
 
-  <h1>A surface-tension model that fails at high Reynolds number</h1>
+  <h1>Two defects in solvers I did not write</h1>
   <p class="standfirst">
+    One in an open-source library, where I could read the source. One in a commercial code, where
+    I could not. Neither crashed, and both had already reached results people were relying on.
+  </p>
+
+  <h2>One: an open-source library, where I can read the source</h2>
+
+  <p>
     Finding it took six experiments. Reporting it took two issues. Fixing it took the maintainers
     a paper.
   </p>
@@ -151,6 +158,60 @@
     that paper. The fix shipped in SPHinXsys v1.2.
   </p>
 
+  <h2>Two: a commercial solver, whose source I cannot read</h2>
+
+  <p>
+    While validating particle tracks in ANSYS CFX I found an <strong>undocumented particle-tracking
+    error at rotor–stator interfaces</strong> in the commercial solver. It does not crash and it
+    does not warn. It produces plausible, wrong answers.
+  </p>
+
+  <p>
+    The symptom was erosion maps on the first rotor coming out <em>striped</em>: on the worst
+    case, <strong>46.8% of blade nodes took no impacts at all</strong> while their neighbours took
+    many, although particles were injected at random upstream. Stripes are not a flow feature.
+  </p>
+
+  <p>
+    I wrote down eight things that could cause it and gave each an experiment that would have made
+    the stripes disappear. Too few particles: inject 1.5 million in one batch. An artifact of the
+    erosion model: bypass it and count raw impacts. Shallow second impacts: delete particles after
+    the first. Seven of the eight changed nothing. The eighth (inject <em>past</em> the stage interface, inside the rotating domain) removed the stripes completely.
+  </p>
+
+  <p>
+    To be sure it was the interface and not something travelling with the flow, I removed the flow:
+    rotor speed to <strong>10⁻⁶ rpm</strong>, particle density to <strong>10⁹ kg/m³</strong> with
+    all fluid forces disabled. Particle motion is then entirely decoupled from the fluid, and
+    nothing is left that can impose a pattern except the interface itself. The stripes stayed.
+  </p>
+
+  <figure>
+    <img src="assets/interface-particle-shift.png"
+         alt="Two scatter plots of particle positions either side of the stage interface. On the left, particles are uniformly scattered. On the right, the same particles lie on discrete curved lines.">
+    <figcaption>
+      The same particles either side of the interface, one step apart. Uniformly random on the
+      upstream face; collapsed onto discrete lines on the downstream face. Those lines are the
+      centre-lines of the receiving mesh cells, the interface is snapping particle positions to
+      the mesh rather than interpolating them across. Measured displacement Δx = 4 mm,
+      Δy = 0.8 mm, Δz = 0, with no periodic boundary crossed to account for it.
+    </figcaption>
+  </figure>
+
+  <p>
+    It is not a misconfigured switch: the redistribution appears under both the sliding-mesh and
+    the mixing-plane treatment. On a geometry with <strong>equal blade counts either side</strong>,
+    where no pitch scaling is required, most particles cross untouched, which points at the
+    pitch-change handling rather than at the interface machinery in general. That last step is my
+    reading of the evidence rather than a confirmed cause; the source is closed.
+  </p>
+
+  <p>
+    That class of bug is the one worth catching, because nothing downstream tells you it happened.
+    It had already reached conclusions other people were relying on, which had to be corrected, and
+    the group moved to full-annulus geometries for high-fidelity tracking as a direct result.
+  </p>
+
   <h2>The code</h2>
 
   <p>
@@ -168,6 +229,15 @@
     same 2D case. The clamp in the acoustic form zeroes the dissipation on expansion however large
     η becomes, so tuning η against experiment sweeps a family that never reaches the dissipative
     solver as an endpoint.
+  </p>
+
+  <p>
+    <a href="https://github.com/nilot-pal/cfx-interface-particle-shift"><strong>cfx-interface-particle-shift</strong></a>
+    holds the second one: the eight hypotheses and what each experiment did, the isolation test,
+    the measured displacements, and a diagnostic that finds the interface crossing by looking for
+    a discontinuity in each particle track rather than by knowing where the interface is, so it
+    works on any case. It also carries the five-geometry comparison, and reproduction steps that
+    use an axial turbine shipped as an ANSYS tutorial, so anyone with a licence can run it.
   </p>
 
 </article></main>
