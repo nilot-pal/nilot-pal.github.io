@@ -117,7 +117,7 @@ code {
 }
 
 figure { margin: 28px 0; }
-figure img, figure video { width: 100%; border: 1px solid var(--line); border-radius: 6px; display: block; }
+figure img, figure video { width: 100%; height: auto; border: 1px solid var(--line); border-radius: 6px; display: block; }
 figcaption { color: var(--muted); font-size: 14.5px; margin-top: 9px; }
 
 .callout {
