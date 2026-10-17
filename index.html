@@ -63,7 +63,7 @@
 
   <div class="results">
     <div><b>5</b><span>defects found in code I did not write, none of which crashed</span></div>
-    <div><b>8</b><span>public repositories, each with a measured result</span></div>
+    <div><b>9</b><span>code repositories below, each with a measured result</span></div>
     <div><b>100M+</b><span>cell full-annulus campaigns on HPC</span></div>
     <div><b>~1,200</b><span>lines of numerical library inside a closed commercial solver</span></div>
   </div>
@@ -148,6 +148,16 @@
         parameter studies underneath: a screening design, a one-factor-at-a-time sweep, a
         dissipation-limiter ladder, and a 2&nbsp;×&nbsp;2 factorial on Poiseuille flow. Video of
         all 29 runs.
+      </p>
+    </li>
+    <li>
+      <a href="https://github.com/nilot-pal/cfx-wall-film-breakage">cfx-wall-film-breakage</a>
+      <p>
+        A wall-film routine is handed an impact velocity relative to the wall and its answer is
+        read as absolute, so on a rotor every fragment launches short. Proved with one particle,
+        one impact and no model at all, both coefficients hardcoded at 0.500. Plus an undocumented
+        parameter that stops the cascade after three generations: at generation three
+        <strong>no particle ever broke, although 3,773 impacts carried enough energy</strong>.
       </p>
     </li>
     <li>
