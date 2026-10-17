@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Deciding whether a reduced-order model can be trusted, Nilotpal Chakraborty</title>
+<meta name="description" content="Independent verification and validation of a reduced-order model against tracked high-fidelity data: proving the derivation, finding a constant wrong in the code, measuring a 17x error reduction, and establishing where it stops working.">
+<meta property="og:title" content="Deciding whether a reduced-order model can be trusted">
+<meta property="og:description" content="Proving the derivation, finding a wrong constant in the code, measuring a 17x error reduction against the relation it replaces, and establishing where it stops working and why.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://nilotpalchakraborty.com/reduced-order-models.html">
+<meta property="og:image" content="https://nilotpalchakraborty.com/assets/rom-size-sweep.png">
+<meta property="og:image:width" content="1760">
+<meta property="og:image:height" content="1280">
+<meta property="og:image:alt" content="Predicted against measured impact-boundary location over particle diameter: the inlet-closed relation is a flat line, the extended model follows the measurement.">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site">
+  <div class="wrap">
+    <a class="home" href="/">Nilotpal Chakraborty</a>
+    <nav>
+      <a href="/sphinxsys.html">Solver defects</a>
+      <a href="/solver-internals.html">Solver internals</a>
+      <a href="/reduced-order-models.html" aria-current="page">Reduced-order models</a>
+      <a href="/hpc.html">Simulation at scale</a>
+      <a href="/evaluation.html">Trusting a result</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap"><article>
+
+  <h1>Deciding whether a reduced-order model can be trusted</h1>
+  <p class="standfirst">
+    I verified a fast model against the simulation it is meant to replace. The derivation held, one
+    constant in the code was wrong, it beat the published relation it extends by a factor of
+    seventeen, and it stops working at a diameter I could predict two independent ways.
+  </p>
+
+  <p>
+    Replacing a solver with something cheaper is the normal direction of travel now, whether the
+    cheap thing is an analytical relation or a network. What decides whether it ships is where it
+    stops being true, and whether you found that out before somebody else did. How well it fits is
+    the easy half.
+  </p>
+
+  <p>
+    This is the whole exercise on one model, written up in the order I did it. The model predicts
+    where particles stop striking a rotating blade, because the blade in front shields the rest of
+    the surface. The reference is Lagrangian particle tracking through a CFD solution of
+    <a href="https://www.grc.nasa.gov/">NASA Rotor 35</a>, an open geometry, which is slow and which
+    I had already run across a range of particle sizes. I did not write the model, which is the
+    point: a model checked by the person who built it is worth less than one checked against
+    somebody else&rsquo;s reference.
+  </p>
+
+  <h2>Step one: is the derivation right, independently of the code?</h2>
+
+  <p>
+    The model extends a published relation by integrating drag along the particle path, so the
+    approach angle is evaluated where the particle arrives rather than where it started. Before
+    testing anything numerically, two claims in it are checkable on paper.
+  </p>
+
+  <p>
+    The first is that its base case reduces to the published relation. It does, and not
+    approximately. Expanding the angle difference and dividing through turns one into the other
+    exactly. I then checked that algebra over <strong>20,000 random inputs</strong> and the largest
+    relative difference was <strong>1.1 &times; 10<sup>&minus;12</sup></strong>, which is floating
+    point and nothing else. That is worth more than agreement: it means the derivation
+    <em>recovers</em> the published result from first principles rather than assuming it.
+  </p>
+
+  <p>
+    The second is that the drag integral inside it is the same integral behind the corrected Stokes
+    number used elsewhere in this project, which comes from a 1982 paper neither of us was working
+    from. Setting the fluid at rest collapses one to the other. Evaluated at four diameters the two
+    agree to <strong>machine precision</strong>, with the same constant. Two people derived the same
+    function by different routes without noticing.
+  </p>
+
+  <h2>Step two: does the code do what the derivation says?</h2>
+
+  <p>
+    Those are separate questions and conflating them is how wrong results survive review. So I
+    reimplemented the solve independently, as a bracketed root find rather than the original
+    fixed-point loop, and compared. Agreement to <strong>0.022 chord</strong>, consistent with the
+    printed tolerance.
+  </p>
+
+  <div class="callout">
+    <p>
+      One line disagreed with its own derivation. The code carries the constant
+      <code>0.158</code> in one place and <code>0.15</code> in another. They come from two different
+      standard drag correlations and only one of them is the one being derived. Worst effect over
+      the sample space is <strong>0.012 chord</strong>, about 1.2%.
+    </p>
+  </div>
+
+  <p>
+    Small enough to live with, and exactly the kind of thing a reviewer finds. Two other things in
+    the same routine would not survive unusual inputs. The iteration loop has no cap. A Reynolds
+    number is computed without an absolute value, so it goes negative in silence if the particle
+    ever outruns the gas.
+  </p>
+
+  <h2>Step three: does it beat the thing it replaces?</h2>
+
+  <p>
+    The published relation is closed at the inlet, and at the inlet the particle approach angle does
+    not depend on particle size. I measured that: it varies by less than
+    <strong>0.003&deg;</strong> across a fifty-fold size range. So the relation returns the same
+    answer, 0.14 chord, for every diameter. The measured boundary moves by a
+    <strong>factor of 2.8</strong> over the same range.
+  </p>
+
+  <figure>
+    <img src="assets/rom-size-sweep.png" width="1760" height="1280"
+         alt="Boundary location against particle diameter. The inlet-closed relation is flat at 0.14 chord. The extended model and the measured values both fall steeply and lie on top of each other.">
+    <figcaption>
+      That flat line is not a poor fit. The model has no term that depends on the variable being
+      plotted.
+    </figcaption>
+  </figure>
+
+  <table>
+    <tr><th>Six cases</th><th>mean error</th><th>worst</th></tr>
+    <tr><td>Extended model</td><td><strong>0.010 chord</strong></td><td>0.027</td></tr>
+    <tr><td>Published relation, closed at the inlet</td><td>0.174 chord</td><td>0.478</td></tr>
+  </table>
+
+  <p>
+    A seventeen-fold reduction in mean error, across a five-fold size range and a four-fold range of
+    injection velocity.
+  </p>
+
+  <p>
+    One of those six is censored rather than measured, and I left it out of the statistic. At the
+    highest injection velocity the footprint reaches the trailing edge, so a percentile of a
+    quantity defined on the blade pins near 1.0 by construction. The number exists, it is
+    computable, and it is not a measurement of anything. Including it would have flattered both
+    models.
+  </p>
+
+  <h2>Step four: the test nobody had run</h2>
+
+  <p>
+    Everything above is at mid-span, where the model is a single number. But the blade is twisted
+    and the spacing changes with radius: solidity runs 1.68 to 1.31 and the setting angle 42.6&deg;
+    to 59.9&deg; from hub to tip. So the relation predicts a <em>shape</em> across the span, and
+    not only a position. That is a much harder test, and neither study had attempted it,
+    because it needs the geometry measured off the CFD mesh at constant radius rather than one
+    mid-span triple.
+  </p>
+
+  <figure>
+    <img src="assets/rom-span-sweep.png" width="2520" height="1040"
+         alt="Boundary location against spanwise position for three particle sizes: the measured curve marches aft toward the tip, the extended model follows it, the published relation is nearly flat.">
+    <figcaption>
+      Twenty-seven spanwise bands, three sizes.
+    </figcaption>
+  </figure>
+
+  <table>
+    <tr><th>Across the span</th><th>mean error</th><th>worst</th></tr>
+    <tr><td>Extended model</td><td><strong>0.016 chord</strong></td><td>0.051</td></tr>
+    <tr><td>Published relation</td><td>0.251 chord</td><td>0.595</td></tr>
+  </table>
+
+  <p>
+    It reproduces where the boundary sits and how it marches aft toward the tip. Outside the middle
+    half of the span I stopped reporting, and said why rather than quoting a bad number. Near the
+    endwalls most impacts are particles rebounding off the casing and hub rather than arriving
+    directly, and the flow is contaminated by corner separation and tip leakage. That is where a
+    two-dimensional strip assumption stops being <em>testable</em>. It is a weaker claim than saying
+    the model is wrong there, and a more defensible one.
+  </p>
+
+  <h2>Step five: where does it stop working, and for the right reason?</h2>
+
+  <p>
+    Below about ten microns the model returns a boundary beyond the trailing edge, meaning no
+    shielded region exists. The CFD agrees: there is no boundary at those sizes. It would have been
+    easy to write that up as the model succeeding at the limit.
+  </p>
+
+  <p>
+    It is not. The model says no boundary because its geometric interception window has opened past
+    the trailing edge. The CFD shows no boundary because the particles have stopped behaving
+    ballistically and follow the gas around the blade, which the model has no mechanism for at all.
+    Right answer, different mechanism. The honest claim is that the model correctly bounds where its
+    own assumptions fail, not that it captures the physics on the other side of that bound.
+  </p>
+
+  <p>
+    What makes the bound usable is that two unrelated routes put it in the same place. The model's
+    own crossing sits at <strong>10.1&nbsp;&micro;m</strong>. The tracked data, which knows nothing
+    about the model, stops forming a boundary at a corrected Stokes number of about 1.6, which on
+    this rotor is <strong>10.4&nbsp;&micro;m</strong>.
+  </p>
+
+  <h2>Could the agreement have been manufactured?</h2>
+
+  <p>
+    Worth asking of your own result before someone asks it of you. There are three free inputs. I
+    moved each by &plusmn;20%:
+  </p>
+
+  <table>
+    <tr><th>Input</th><th>swing in the prediction</th></tr>
+    <tr><td>Fluid axial speed</td><td>&plusmn;0.063 chord</td></tr>
+    <tr><td>Injection velocity</td><td>&plusmn;0.042</td></tr>
+    <tr><td>Inlet to leading-edge distance</td><td>&plusmn;0.022</td></tr>
+  </table>
+
+  <p>
+    No single input is a knob large enough to produce the result, every swing being under 0.07
+    against a gap of 0.47 chord between the two models at the size where they differ most. The same
+    check also corrected a claim in the original write-up, that predictive accuracy is governed by
+    the particle velocity: true of the base model, where it is the only free input, but in the
+    extended model the fluid velocity matters slightly more.
+  </p>
+
+  <p>
+    The measured boundary itself gets the same treatment. The pipeline that originally produced it
+    is not on disk, so I rebuilt the extraction from raw impact positions and calibrated it against
+    the surviving outputs to within <strong>0.009 chord</strong> on all three cases where both
+    exist. The cut it uses is not tuned: there is a density cliff at the boundary, the 98th
+    percentile sitting at 0.215 chord and the 99th at 0.727, so any cut across a wide band gives the
+    same answer. A report flag prints that ladder, so anyone running it on their own data can check
+    their footprint has an edge at all before trusting the number.
+  </p>
+
+  <h2>What I sent back</h2>
+
+  <p>
+    A self-contained package that runs on raw impact exports and needs nothing of mine: no mesh, no
+    solver, no licence. The model with the constant fixed and a bracketed solver, the boundary
+    extractor, a comparison driver, the measured rotor geometry as JSON, a demo configuration that
+    reproduces my six cases and a template to point at new data, and a README carrying the caveats
+    and every change I made.
+  </p>
+
+  <div class="callout">
+    <p>
+      Finding a bug in a model is worth very little on its own. Handing it back working, with the
+      test that would have caught it, is the part that changes what happens next.
+    </p>
+  </div>
+
+  <h2>Why this is the part that transfers</h2>
+
+  <p>
+    Nothing above needs a compressor. Prove the derivation separately from the implementation.
+    Measure against a reference you trust. Run the hardest test the data supports, not the one that
+    flatters. State the failure bound and check it two ways. Refuse the numbers that cannot carry
+    the claim. None of those steps changes if the fast thing is a response surface or a neural
+    surrogate instead of an equation.
+  </p>
+
+  <p>
+    It is also the question I keep arriving at from different directions. Comparing two
+    particle-wall models, mass flux and two independent erosion correlations agreed to within one
+    percent. A particle count disagreed by half. The count turned out to be set by an arbitrary
+    cutoff rather than by physics, so it could never have settled anything. Deciding what a
+    comparison is entitled to claim comes before making it.
+  </p>
+
+</article></main>
+
+<footer class="site">
+  <div class="wrap">
+    Blacksburg, Virginia &middot;
+    <a href="mailto:nilotpalc@vt.edu">nilotpalc@vt.edu</a> &middot;
+    <a href="https://github.com/nilot-pal">github.com/nilot-pal</a>
+  </div>
+</footer>
+
+</body>
+</html>

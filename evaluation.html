@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Deciding whether to believe a model, Nilotpal Chakraborty</title>
-<meta name="description" content="Machine learning projects built around evaluation rather than accuracy: threshold tuning under asymmetric costs, and why the model that wins on F1 is often not the one to deploy.">
-<meta property="og:title" content="Deciding whether to believe a model, Nilotpal Chakraborty">
-<meta property="og:description" content="Machine learning projects built around evaluation rather than accuracy: threshold tuning under asymmetric costs, and why the model that wins on F1 is often not the one to deploy.">
+<title>What a result is entitled to claim, Nilotpal Chakraborty</title>
+<meta name="description" content="Five times a number that was perfectly computable turned out to mean nothing. Establishing which quantity a comparison can be scored on, before scoring it, in solvers and in machine learning.">
+<meta property="og:title" content="What a result is entitled to claim, Nilotpal Chakraborty">
+<meta property="og:description" content="Five times a number that was perfectly computable turned out to mean nothing. The habit of deciding what a comparison can be scored on before scoring it.">
 <meta property="og:url" content="https://nilotpalchakraborty.com/evaluation.html">
 <meta property="og:image" content="https://nilotpalchakraborty.com/assets/interface-particle-shift.png">
 <meta property="og:image:width" content="1189">
@@ -23,36 +23,95 @@
     <nav>
       <a href="/sphinxsys.html">Solver defects</a>
       <a href="/solver-internals.html">Solver internals</a>
+      <a href="/reduced-order-models.html">Reduced-order models</a>
       <a href="/hpc.html">Simulation at scale</a>
-      <a href="/evaluation.html" aria-current="page">Evaluation</a>
+      <a href="/evaluation.html" aria-current="page">Trusting a result</a>
     </nav>
   </div>
 </header>
 
 <main class="wrap"><article>
 
-  <h1>Deciding whether to believe a model</h1>
+  <h1>What a result is entitled to claim</h1>
   <p class="standfirst">
-    Anyone can train a surrogate. The useful question is whether you should believe it, and that
-    is a question about evaluation, not about architecture.
+    Five times now, a number that was perfectly computable has turned out to mean nothing. You can
+    take an L2 error on it and get a real figure. The figure answers no question anybody has.
   </p>
 
   <p>
-    The same question runs through my own reduced-order work on particle breakage. Fitting the
-    model was never the hard part. Knowing the conditions under which its prediction can be
-    trusted, and being able to say where it stops, was.
+    A residual tells you an iteration stopped moving, not that it stopped at the right answer. An
+    accuracy score tells you a classifier agrees with the majority class, not that it is useful.
+    In both cases the easy number is not the deciding one. Working out which quantity a comparison
+    can be scored on has to happen <em>before</em> the comparison, not after somebody disputes it.
   </p>
 
   <p>
-    That is the same discipline as verifying a solver. A residual tells you an iteration stopped
-    moving; it does not tell you it stopped at the right answer. An accuracy score tells you a
-    classifier agrees with the majority class; it does not tell you the model is useful. In both
-    cases the number that is easy to compute is not the number that decides anything.
+    This started as a one-off and turned into the thing I am most often useful for. The five below
+    come from different codes and different physical quantities, and two of them were in work that
+    was not mine.
+  </p>
+
+  <h2>Five quantities that could not carry the claim</h2>
+
+  <p>
+    <strong>1. Counting rows instead of events.</strong> A solver logs one row per particle-wall
+    contact per timestep, so a particle grazing along a surface writes a row every step it stays in
+    contact. One surface showed <strong>5,866 impact rows and about 130 distinct spots</strong>. Any
+    count built on rows is a function of the timestep. The rate is not.
   </p>
 
   <p>
-    Two small projects where I worked that through on problems where the ground truth is
-    available, so the reasoning is checkable.
+    <strong>2. A metric set by an arbitrary cutoff rather than by physics.</strong> Comparing two
+    particle-wall models across nine stations, the mass arriving at the wall agreed to
+    <strong>within 1%</strong> and two independent erosion correlations agreed to the same, while
+    the particle <em>count</em> disagreed by about half. The count is dominated by the smallest
+    fragments, and where you stop tracking them is a modelling choice. Move that cutoff from one
+    micron to four and the count moves by a factor of <strong>22</strong> while erosion moves
+    under 2%.
+    I assumed for a while that this was a sampling problem. Raising the parcel count from 6,300 to
+    211,000 moved the ratio the wrong way.
+  </p>
+
+  <p>
+    <strong>3. The same symbol meaning two different things.</strong> A team question list asked how
+    impact patterns vary below a Stokes number of 10. In this flow the Stokes drag assumption breaks
+    down, and the corrected and uncorrected definitions differ by a factor of <strong>2 to
+    12</strong>. So "below 10" meant particles under 13 microns or under 35 microns depending on
+    which was meant, a <strong>2.7-fold difference in the dust an experiment would have to be
+    fed</strong>. Nobody had said which. Applying the correction is post-processing and costs
+    nothing; noticing that it mattered was the work.
+  </p>
+
+  <p>
+    <strong>4. One of my own scripts printing something it was not entitled to print.</strong> A
+    force-decomposition tool reported an implied slip velocity and an implied Reynolds number by
+    inverting Stokes drag from the measured residual. Where the real drag is stronger than Stokes by
+    a known factor, both outputs overshoot by that factor. It printed 1444&nbsp;m/s and Re 5465
+    where the physical values are about 170&nbsp;m/s and Re 650. The fix went in the documentation
+    rather than the code: a line saying do not quote these two numbers.
+  </p>
+
+  <p>
+    <strong>5. A value censored by its own definition.</strong> Comparing a reduced-order model
+    against tracked data, one case had the footprint running off the back of the blade. The
+    extracted position is a percentile of a quantity defined only on the blade, so it pins near 1.0
+    by construction. The number exists and is computable. It is not a measurement, and including it
+    would have flattered both models being compared.
+  </p>
+
+  <div class="callout">
+    <p>
+      The pattern in all five: the quantity that was easiest to compute was the one least connected
+      to the physics. Two were in somebody else&rsquo;s work, one was in a published convention, and
+      one was in my own output.
+    </p>
+  </div>
+
+  <h2>The same discipline where the ground truth is available</h2>
+
+  <p>
+    Two small machine-learning projects where the same reasoning is checkable end to end, because
+    the labels are known.
   </p>
 
   <h2>The model that wins on F1 is not the one to deploy</h2>

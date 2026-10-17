@@ -23,8 +23,9 @@
     <nav>
       <a href="/sphinxsys.html">Solver defects</a>
       <a href="/solver-internals.html">Solver internals</a>
+      <a href="/reduced-order-models.html">Reduced-order models</a>
       <a href="/hpc.html" aria-current="page">Simulation at scale</a>
-      <a href="/evaluation.html">Evaluation</a>
+      <a href="/evaluation.html">Trusting a result</a>
     </nav>
   </div>
 </header>
@@ -124,8 +125,10 @@
 
   <div class="callout">
     <p>
-      The part I did not anticipate: once the study established that licences (not cores, not memory) were the ceiling on how fast the group could run, <strong>the allocation supporting
-      our sponsor-facing work was doubled</strong>, from the 400 I had been working within to 800.
+      The part I did not anticipate. The study established that licences, rather than cores or
+      memory, were the ceiling on how fast the group could run. <strong>The allocation supporting
+      our sponsor-facing work was then doubled</strong>, from the 400 I had been working within
+      to 800.
       A benchmark is an argument about where money should go, and it is a much better argument
       than an opinion.
     </p>
@@ -193,7 +196,7 @@
 
   <p>
     So I wrote it up as an engineering question rather than a complaint and took it to the
-    university's HPC staff: scaling evidence on particle-count growth and track-file size, the
+    university's HPC staff. Scaling evidence on particle-count growth and track-file size, the
     Slurm script and solver flags in full, and specific questions on MPI layout, memory per rank,
     load imbalance and filesystem choice.
   </p>

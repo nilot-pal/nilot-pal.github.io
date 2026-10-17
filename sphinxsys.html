@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Two defects in solvers I did not write, Nilotpal Chakraborty</title>
-<meta name="description" content="A surface-tension model that fails above Re 1000 in an open-source SPH library, and an undocumented particle-tracking error at rotor-stator interfaces in a commercial solver.">
-<meta property="og:title" content="Two defects in solvers I did not write, Nilotpal Chakraborty">
-<meta property="og:description" content="A surface-tension model that fails above Re 1000 in an open-source SPH library, and an undocumented particle-tracking error at rotor-stator interfaces in a commercial solver.">
+<title>Five defects in solvers I did not write, Nilotpal Chakraborty</title>
+<meta name="description" content="A surface-tension model that fails above Re 1000, a silent particle displacement at a stage interface, a reference-frame mismatch on moving walls, an undocumented limit that truncates a cascade, and a constant that disagreed with its own derivation. None of them crashed.">
+<meta property="og:title" content="Five defects in solvers I did not write, Nilotpal Chakraborty">
+<meta property="og:description" content="Five defects in code I did not write. None of them crashed, and every one had already reached results somebody was relying on.">
 <meta property="og:url" content="https://nilotpalchakraborty.com/sphinxsys.html">
 <meta property="og:image" content="https://nilotpalchakraborty.com/assets/interface-particle-shift.png">
 <meta property="og:image:width" content="1189">
@@ -23,18 +23,20 @@
     <nav>
       <a href="/sphinxsys.html" aria-current="page">Solver defects</a>
       <a href="/solver-internals.html">Solver internals</a>
+      <a href="/reduced-order-models.html">Reduced-order models</a>
       <a href="/hpc.html">Simulation at scale</a>
-      <a href="/evaluation.html">Evaluation</a>
+      <a href="/evaluation.html">Trusting a result</a>
     </nav>
   </div>
 </header>
 
 <main class="wrap"><article>
 
-  <h1>Two defects in solvers I did not write</h1>
+  <h1>Five defects in solvers I did not write</h1>
   <p class="standfirst">
-    One in an open-source library, where I could read the source. One in a commercial code, where
-    I could not. Neither crashed, and both had already reached results people were relying on.
+    One in an open-source library, where I could read the source. Three in a commercial code, where
+    I could not. One in a reduced-order model. <strong>None of them crashed.</strong> Every one had
+    already reached results somebody was relying on, and each took a different method to find.
   </p>
 
   <h2>One: an open-source library, where I can read the source</h2>
@@ -218,6 +220,78 @@
     That class of bug is the one worth catching, because nothing downstream tells you it happened.
     It had already reached conclusions other people were relying on, which had to be corrected, and
     the group moved to full-annulus geometries for high-fidelity tracking as a direct result.
+  </p>
+
+  <h2>Three: the same solver again, handing a routine one frame and reading the answer in another</h2>
+
+  <p>
+    A user routine in that code is given the velocity of an impact measured <em>relative to the
+    wall</em>. Whatever it returns is then applied as though it were absolute. On a stationary wall
+    the two frames coincide and nothing is wrong, which is why the path had survived for years. On
+    a wall that is moving, every fragment leaves short by the speed of the wall.
+  </p>
+
+  <p>
+    What put me onto it was a disagreement between a simulation and an experiment that nobody could
+    explain. What proved it was taking the physics out. I built a case with one particle, one
+    impact, two fragments and a single timestep, with no model in the routine at all and both
+    restitution coefficients hardcoded at 0.500, so the correct answer is known by construction.
+    Rotating gave <strong>0.107</strong> normal and <strong>1.464</strong> tangential. The
+    stationary control, identical in every respect but the rotation of the domain, gave
+    <strong>0.5000</strong>.
+  </p>
+
+  <p>
+    Between those two numbers I eliminated <strong>eleven competing explanations</strong>, one test
+    at a time. The documentation is the argument: the vendor’s own page on standard particle-wall
+    interaction states that a moving wall requires the wall frame, and its page on the user-defined
+    path describes the returned velocity with no frame specified at all.
+  </p>
+
+  <p>
+    The algebraically obvious repair is to add the wall velocity back. It is exact in the box
+    through three chained impacts, and it is unusable in a real machine, where the same correction
+    turns 2,885 impacts into 50.9 million and a median impact speed of 179&nbsp;m/s into
+    8,549&nbsp;m/s. Whether the fault then lies in the returned value or in the solver’s own
+    separation test is not observable from outside, which is where it sits with the vendor.
+    The fix that works goes around the affected path entirely, returning coefficients and a breakup
+    factor rather than a velocity, and the unphysical population it was producing falls from
+    <strong>39.8% to 0.91%</strong>.
+  </p>
+
+  <h2>Four: an undocumented limit, found by asking who the parents were</h2>
+
+  <p>
+    The same solver silently stops a fragmentation cascade after three generations. It is a hidden
+    expert parameter, it is not in the manual, and it has no effect you would notice: the run
+    completes, the numbers are plausible, and they are low.
+  </p>
+
+  <p>
+    I found it by reconstructing lineage. Every impact traced back to the particle it came from,
+    then counted by generation. At generation three <strong>no particle ever broke, although 3,773
+    impacts carried more than enough energy to break one</strong>. That is not a model behaving
+    oddly, it is a gate.
+  </p>
+
+  <p>
+    Raising the limit moves one modelling route’s count by <strong>+30.5%</strong> and the other’s
+    by <strong>0.0%</strong>, because of how each one assigns a generation to a fragment. So any
+    comparison between the two routes, run at the default, had one side quietly truncated and the
+    other untouched. Every earlier run of that kind in the group was affected, and correcting it is
+    part of why a paper I am an author on has the numbers it has.
+  </p>
+
+  <h2>Five: a constant that disagreed with its own derivation</h2>
+
+  <p>
+    The fifth is in a model rather than a shipped solver, and it is the smallest of them. One line
+    carries <code>0.15</code> where the derivation above it requires <code>0.158</code>. The two
+    constants belong to two different standard drag correlations, and only one of them is being
+    derived. Worth about 1.2% of the answer. I found it while verifying the model against tracked
+    data, and sent
+    back a working version rather than a bug report.
+    <a href="/reduced-order-models.html">That verification is its own page</a>.
   </p>
 
   <h2>The code</h2>
