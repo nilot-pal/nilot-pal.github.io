@@ -38,6 +38,13 @@
     things it needed were not there.
   </p>
 
+  <div class="results">
+    <div><b>~1,200</b><span>lines of numerical library, inside a closed solver</span></div>
+    <div><b>14 bits</b><span>of damage history in a float that holds one number</span></div>
+    <div><b>0.39%</b><span>precision cost on the diameter it shares</span></div>
+    <div><b>3</b><span>things the API did not provide, and one it forbade</span></div>
+  </div>
+
   <p>
     My dissertation models what happens when a gas turbine ingests sand: the particles hit the
     blades, weaken, and eventually shatter. Modelling the shattering means a
@@ -86,6 +93,65 @@
     diameter stays accurate to far more precision than the physics needs; the spare bits carry the
     history.
   </p>
+
+<figure class="diagram">
+<svg viewBox="0 0 760 134" role="img" aria-labelledby="msT msD">
+<title id="msT">A state channel inside the diameter</title>
+<desc id="msD">The 32 bits of an IEEE-754 single-precision float: one sign bit, eight exponent bits and twenty-three mantissa bits. The top eight mantissa bits keep the diameter, one bit is a flag, and the low fourteen carry the accumulated fracture energy.</desc>
+  <rect x="44" y="56" width="21" height="36" fill="var(--line)" stroke="var(--muted)" stroke-width="1.4"/>
+  <rect x="65" y="56" width="168" height="36" fill="var(--line)" stroke="var(--muted)" stroke-width="1.4"/>
+  <line x1="86" y1="56" x2="86" y2="92" stroke="var(--muted)" stroke-width="0.8" opacity="0.4"/>
+  <line x1="107" y1="56" x2="107" y2="92" stroke="var(--muted)" stroke-width="0.8" opacity="0.4"/>
+  <line x1="128" y1="56" x2="128" y2="92" stroke="var(--muted)" stroke-width="0.8" opacity="0.4"/>
+  <line x1="149" y1="56" x2="149" y2="92" stroke="var(--muted)" stroke-width="0.8" opacity="0.4"/>
+  <line x1="170" y1="56" x2="170" y2="92" stroke="var(--muted)" stroke-width="0.8" opacity="0.4"/>
+  <line x1="191" y1="56" x2="191" y2="92" stroke="var(--muted)" stroke-width="0.8" opacity="0.4"/>
+  <line x1="212" y1="56" x2="212" y2="92" stroke="var(--muted)" stroke-width="0.8" opacity="0.4"/>
+  <text class="hd" x="149" y="44" text-anchor="middle">exponent, 8</text>
+  <rect x="233" y="56" width="168" height="36" fill="var(--bg)" stroke="var(--fg)" stroke-width="1.4"/>
+  <line x1="254" y1="56" x2="254" y2="92" stroke="var(--fg)" stroke-width="0.8" opacity="0.4"/>
+  <line x1="275" y1="56" x2="275" y2="92" stroke="var(--fg)" stroke-width="0.8" opacity="0.4"/>
+  <line x1="296" y1="56" x2="296" y2="92" stroke="var(--fg)" stroke-width="0.8" opacity="0.4"/>
+  <line x1="317" y1="56" x2="317" y2="92" stroke="var(--fg)" stroke-width="0.8" opacity="0.4"/>
+  <line x1="338" y1="56" x2="338" y2="92" stroke="var(--fg)" stroke-width="0.8" opacity="0.4"/>
+  <line x1="359" y1="56" x2="359" y2="92" stroke="var(--fg)" stroke-width="0.8" opacity="0.4"/>
+  <line x1="380" y1="56" x2="380" y2="92" stroke="var(--fg)" stroke-width="0.8" opacity="0.4"/>
+  <text class="hd" x="317" y="44" text-anchor="middle">diameter kept, 8</text>
+  <rect x="401" y="56" width="21" height="36" fill="var(--accent)" stroke="var(--accent)" stroke-width="1.4"/>
+  <rect x="422" y="56" width="294" height="36" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.4"/>
+  <line x1="443" y1="56" x2="443" y2="92" stroke="var(--accent)" stroke-width="0.8" opacity="0.4"/>
+  <line x1="464" y1="56" x2="464" y2="92" stroke="var(--accent)" stroke-width="0.8" opacity="0.4"/>
+  <line x1="485" y1="56" x2="485" y2="92" stroke="var(--accent)" stroke-width="0.8" opacity="0.4"/>
+  <line x1="506" y1="56" x2="506" y2="92" stroke="var(--accent)" stroke-width="0.8" opacity="0.4"/>
+  <line x1="527" y1="56" x2="527" y2="92" stroke="var(--accent)" stroke-width="0.8" opacity="0.4"/>
+  <line x1="548" y1="56" x2="548" y2="92" stroke="var(--accent)" stroke-width="0.8" opacity="0.4"/>
+  <line x1="569" y1="56" x2="569" y2="92" stroke="var(--accent)" stroke-width="0.8" opacity="0.4"/>
+  <line x1="590" y1="56" x2="590" y2="92" stroke="var(--accent)" stroke-width="0.8" opacity="0.4"/>
+  <line x1="611" y1="56" x2="611" y2="92" stroke="var(--accent)" stroke-width="0.8" opacity="0.4"/>
+  <line x1="632" y1="56" x2="632" y2="92" stroke="var(--accent)" stroke-width="0.8" opacity="0.4"/>
+  <line x1="653" y1="56" x2="653" y2="92" stroke="var(--accent)" stroke-width="0.8" opacity="0.4"/>
+  <line x1="674" y1="56" x2="674" y2="92" stroke="var(--accent)" stroke-width="0.8" opacity="0.4"/>
+  <line x1="695" y1="56" x2="695" y2="92" stroke="var(--accent)" stroke-width="0.8" opacity="0.4"/>
+  <text class="hd" x="569" y="44" text-anchor="middle">damage history, 14</text>
+  <text class="sm" x="54" y="79" text-anchor="middle">s</text>
+  <line x1="412" y1="52" x2="412" y2="34" stroke="var(--accent)" stroke-width="1"/>
+  <text class="hd" x="412" y="26" text-anchor="middle" fill="var(--accent)">flag</text>
+  <path d="M233,100 L233,106 L401,106 L401,100" fill="none" stroke="var(--muted)" stroke-width="1"/>
+  <text class="sm" x="317" y="124" text-anchor="middle">2<tspan baseline-shift="super" font-size="9">&#8722;8</tspan> = 0.39% of the carrier</text>
+  <path d="M422,100 L422,106 L716,106 L716,100" fill="none" stroke="var(--muted)" stroke-width="1"/>
+  <text class="sm" x="569" y="124" text-anchor="middle">log-quantised fracture energy</text>
+</svg>
+<figcaption>
+  The solver carries one float per particle, the diameter, and there is nowhere
+  else to put anything. Keeping only the top eight mantissa bits costs
+  <strong>2<sup>&minus;8</sup>, or 0.39%</strong>, of the diameter, which across
+  <strong>385,170 mesh nodes</strong> is nearly three orders of magnitude finer
+  than the median facet. The 14 bits that frees carry the accumulated damage
+  across the Lagrangian track and across MPI rank boundaries, behind a flag bit,
+  with guards for denormals, infinities and sign. Code that knows nothing about
+  the encoding still reads a usable diameter.
+</figcaption>
+</figure>
 
   <div class="callout">
     <p>

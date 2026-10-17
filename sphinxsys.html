@@ -39,6 +39,13 @@
     already reached results somebody was relying on, and each took a different method to find.
   </p>
 
+  <div class="results">
+    <div><b>5</b><span>defects found in code I did not write</span></div>
+    <div><b>0</b><span>of them crashed, warned, or failed a test</span></div>
+    <div><b>11</b><span>competing explanations eliminated on the hardest one</span></div>
+    <div><b>1</b><span>fix shipped upstream, in a paper that acknowledges me</span></div>
+  </div>
+
   <h2>One: an open-source library, where I can read the source</h2>
 
   <p>
@@ -231,6 +238,94 @@
     a wall that is moving, every fragment leaves short by the speed of the wall.
   </p>
 
+<figure class="diagram">
+<svg viewBox="0 110 760 266" role="img" aria-labelledby="fmT fmD">
+<title id="fmT">The rotating-wall frame mismatch</title>
+<desc id="fmD">A grain strikes a wall moving to the right at speed U. The user
+routine returns the fragment velocity v, measured relative to the wall. The
+solver applies that same v as though it were absolute, so the fragment is
+launched along v instead of along v plus U, short by the whole speed of the
+wall.</desc>
+  <defs>
+    <marker id="aFm" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L11,6 L0,12 Z" fill="var(--accent)"/></marker>
+    <marker id="gFm" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L11,6 L0,12 Z" fill="var(--good)"/></marker>
+    <marker id="mFm" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L11,6 L0,12 Z" fill="var(--muted)"/></marker>
+  </defs>
+
+  <!-- the wall -->
+  <rect x="60" y="262" width="640" height="11" fill="var(--line)" stroke="var(--muted)"/>
+  <line x1="77" y1="273" x2="66" y2="285" stroke="var(--muted)" stroke-width="1" opacity="0.55"/>
+  <line x1="99" y1="273" x2="88" y2="285" stroke="var(--muted)" stroke-width="1" opacity="0.55"/>
+  <line x1="121" y1="273" x2="110" y2="285" stroke="var(--muted)" stroke-width="1" opacity="0.55"/>
+  <line x1="143" y1="273" x2="132" y2="285" stroke="var(--muted)" stroke-width="1" opacity="0.55"/>
+  <line x1="165" y1="273" x2="154" y2="285" stroke="var(--muted)" stroke-width="1" opacity="0.55"/>
+  <line x1="187" y1="273" x2="176" y2="285" stroke="var(--muted)" stroke-width="1" opacity="0.55"/>
+  <line x1="209" y1="273" x2="198" y2="285" stroke="var(--muted)" stroke-width="1" opacity="0.55"/>
+  <line x1="231" y1="273" x2="220" y2="285" stroke="var(--muted)" stroke-width="1" opacity="0.55"/>
+  <line x1="253" y1="273" x2="242" y2="285" stroke="var(--muted)" stroke-width="1" opacity="0.55"/>
+  <line x1="275" y1="273" x2="264" y2="285" stroke="var(--muted)" stroke-width="1" opacity="0.55"/>
+  <line x1="297" y1="273" x2="286" y2="285" stroke="var(--muted)" stroke-width="1" opacity="0.55"/>
+  <line x1="319" y1="273" x2="308" y2="285" stroke="var(--muted)" stroke-width="1" opacity="0.55"/>
+  <line x1="341" y1="273" x2="330" y2="285" stroke="var(--muted)" stroke-width="1" opacity="0.55"/>
+  <line x1="363" y1="273" x2="352" y2="285" stroke="var(--muted)" stroke-width="1" opacity="0.55"/>
+  <line x1="385" y1="273" x2="374" y2="285" stroke="var(--muted)" stroke-width="1" opacity="0.55"/>
+  <line x1="407" y1="273" x2="396" y2="285" stroke="var(--muted)" stroke-width="1" opacity="0.55"/>
+  <line x1="429" y1="273" x2="418" y2="285" stroke="var(--muted)" stroke-width="1" opacity="0.55"/>
+  <line x1="451" y1="273" x2="440" y2="285" stroke="var(--muted)" stroke-width="1" opacity="0.55"/>
+  <line x1="473" y1="273" x2="462" y2="285" stroke="var(--muted)" stroke-width="1" opacity="0.55"/>
+  <line x1="495" y1="273" x2="484" y2="285" stroke="var(--muted)" stroke-width="1" opacity="0.55"/>
+  <line x1="517" y1="273" x2="506" y2="285" stroke="var(--muted)" stroke-width="1" opacity="0.55"/>
+  <line x1="539" y1="273" x2="528" y2="285" stroke="var(--muted)" stroke-width="1" opacity="0.55"/>
+  <line x1="561" y1="273" x2="550" y2="285" stroke="var(--muted)" stroke-width="1" opacity="0.55"/>
+  <line x1="583" y1="273" x2="572" y2="285" stroke="var(--muted)" stroke-width="1" opacity="0.55"/>
+  <line x1="605" y1="273" x2="594" y2="285" stroke="var(--muted)" stroke-width="1" opacity="0.55"/>
+  <line x1="627" y1="273" x2="616" y2="285" stroke="var(--muted)" stroke-width="1" opacity="0.55"/>
+  <line x1="649" y1="273" x2="638" y2="285" stroke="var(--muted)" stroke-width="1" opacity="0.55"/>
+  <line x1="671" y1="273" x2="660" y2="285" stroke="var(--muted)" stroke-width="1" opacity="0.55"/>
+  <line x1="693" y1="273" x2="682" y2="285" stroke="var(--muted)" stroke-width="1" opacity="0.55"/>
+  <line x1="80" y1="246" x2="205" y2="246" stroke="var(--muted)" stroke-width="1.6"
+        marker-end="url(#mFm)"/>
+  <text class="num" x="140" y="238" text-anchor="middle" fill="var(--muted)">U</text>
+  <text class="lbl" x="380" y="306" text-anchor="middle">rotating wall, surface speed U = 200 to 285 m/s</text>
+
+  <!-- incoming grain -->
+  <line x1="120" y1="142" x2="252" y2="254" stroke="var(--muted)" stroke-width="2"
+        marker-end="url(#mFm)"/>
+  <text class="lbl" x="124" y="130">incoming grain</text>
+  <circle cx="260" cy="262" r="4.5" fill="var(--fg)"/>
+
+  <!-- what the routine returns, applied as absolute -->
+  <line x1="260" y1="262" x2="318" y2="152" stroke="var(--accent)" stroke-width="2.6"
+        marker-end="url(#aFm)"/>
+  <text class="num" x="296" y="216" fill="var(--accent)">v</text>
+
+  <!-- the wall speed that gets dropped -->
+  <line x1="320" y1="152" x2="455" y2="152" stroke="var(--accent)" stroke-width="1.8"
+        stroke-dasharray="5 4" marker-end="url(#aFm)"/>
+  <text class="num" x="388" y="144" text-anchor="middle" fill="var(--accent)">U</text>
+
+  <!-- where it actually has to go -->
+  <line x1="260" y1="262" x2="461" y2="152" stroke="var(--good)" stroke-width="2.6"
+        marker-end="url(#gFm)"/>
+  <text class="num" x="392" y="232" fill="var(--good)">v + U</text>
+
+  <!-- legend -->
+  <line x1="60" y1="334" x2="92" y2="334" stroke="var(--accent)" stroke-width="2.6"/>
+  <text class="lbl" x="102" y="338">v, what the routine returns: the impact measured relative to the wall</text>
+  <line x1="60" y1="358" x2="92" y2="358" stroke="var(--good)" stroke-width="2.6"/>
+  <text class="lbl" x="102" y="362">v + U, where the fragment has to go in the lab frame</text>
+</svg>
+<figcaption>
+  On a stationary wall the two frames coincide and nothing is wrong, which is why
+  the path had survived for years. On a rotor turning at 200 to 285&nbsp;m/s every
+  fragment leaves short by the whole speed of the wall. In the reproducer, with
+  both restitution coefficients hardcoded at 0.500 and no model in the routine at
+  all, the rotating case returned <strong>0.107</strong> normal and
+  <strong>1.464</strong> tangential; the stationary control, identical but for the
+  rotation of the domain, gave <strong>0.5000</strong>.
+</figcaption>
+</figure>
+
   <p>
     What put me onto it was a disagreement between a simulation and an experiment that nobody could
     explain. What proved it was taking the physics out. I built a case with one particle, one
@@ -273,6 +368,69 @@
     impacts carried more than enough energy to break one</strong>. That is not a model behaving
     oddly, it is a gate.
   </p>
+
+<figure class="diagram">
+<svg viewBox="0 0 760 300" role="img" aria-labelledby="gcT gcD">
+<title id="gcT">An undocumented generation cap</title>
+<desc id="gcD">A fragmentation cascade drawn as a lineage tree. Generations zero, one, two and three each break into further fragments, and then the cascade stops: generation three produces nothing, because a hidden solver parameter caps the number of generations at three.</desc>
+  <defs>
+    <marker id="mGc" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L11,6 L0,12 Z" fill="var(--muted)"/></marker>
+  </defs>
+  <line x1="121" y1="150.0" x2="259" y2="93.0" stroke="var(--muted)" stroke-width="1.2" opacity="0.7"/>
+  <line x1="121" y1="150.0" x2="259" y2="207.0" stroke="var(--muted)" stroke-width="1.2" opacity="0.7"/>
+  <line x1="281" y1="93.0" x2="419" y2="64.5" stroke="var(--muted)" stroke-width="1.2" opacity="0.7"/>
+  <line x1="281" y1="93.0" x2="419" y2="121.5" stroke="var(--muted)" stroke-width="1.2" opacity="0.7"/>
+  <line x1="281" y1="207.0" x2="419" y2="178.5" stroke="var(--muted)" stroke-width="1.2" opacity="0.7"/>
+  <line x1="281" y1="207.0" x2="419" y2="235.5" stroke="var(--muted)" stroke-width="1.2" opacity="0.7"/>
+  <line x1="441" y1="64.5" x2="569" y2="50.0" stroke="var(--muted)" stroke-width="1.2" opacity="0.7"/>
+  <line x1="441" y1="64.5" x2="569" y2="79.0" stroke="var(--muted)" stroke-width="1.2" opacity="0.7"/>
+  <line x1="441" y1="121.5" x2="569" y2="107.0" stroke="var(--muted)" stroke-width="1.2" opacity="0.7"/>
+  <line x1="441" y1="121.5" x2="569" y2="136.0" stroke="var(--muted)" stroke-width="1.2" opacity="0.7"/>
+  <line x1="441" y1="178.5" x2="569" y2="164.0" stroke="var(--muted)" stroke-width="1.2" opacity="0.7"/>
+  <line x1="441" y1="178.5" x2="569" y2="193.0" stroke="var(--muted)" stroke-width="1.2" opacity="0.7"/>
+  <line x1="441" y1="235.5" x2="569" y2="221.0" stroke="var(--muted)" stroke-width="1.2" opacity="0.7"/>
+  <line x1="441" y1="235.5" x2="569" y2="250.0" stroke="var(--muted)" stroke-width="1.2" opacity="0.7"/>
+  <line x1="591" y1="50.0" x2="652" y2="50.0" stroke="var(--muted)" stroke-width="1.2" stroke-dasharray="4 4" opacity="0.5"/>
+  <line x1="591" y1="79.0" x2="652" y2="79.0" stroke="var(--muted)" stroke-width="1.2" stroke-dasharray="4 4" opacity="0.5"/>
+  <line x1="591" y1="107.0" x2="652" y2="107.0" stroke="var(--muted)" stroke-width="1.2" stroke-dasharray="4 4" opacity="0.5"/>
+  <line x1="591" y1="136.0" x2="652" y2="136.0" stroke="var(--muted)" stroke-width="1.2" stroke-dasharray="4 4" opacity="0.5"/>
+  <line x1="591" y1="164.0" x2="652" y2="164.0" stroke="var(--muted)" stroke-width="1.2" stroke-dasharray="4 4" opacity="0.5"/>
+  <line x1="591" y1="193.0" x2="652" y2="193.0" stroke="var(--muted)" stroke-width="1.2" stroke-dasharray="4 4" opacity="0.5"/>
+  <line x1="591" y1="221.0" x2="652" y2="221.0" stroke="var(--muted)" stroke-width="1.2" stroke-dasharray="4 4" opacity="0.5"/>
+  <line x1="591" y1="250.0" x2="652" y2="250.0" stroke="var(--muted)" stroke-width="1.2" stroke-dasharray="4 4" opacity="0.5"/>
+  <circle cx="110" cy="150.0" r="10" fill="var(--bg)" stroke="var(--fg)" stroke-width="1.5"/>
+  <circle cx="270" cy="93.0" r="10" fill="var(--bg)" stroke="var(--fg)" stroke-width="1.5"/>
+  <circle cx="270" cy="207.0" r="10" fill="var(--bg)" stroke="var(--fg)" stroke-width="1.5"/>
+  <circle cx="430" cy="64.5" r="10" fill="var(--bg)" stroke="var(--fg)" stroke-width="1.5"/>
+  <circle cx="430" cy="121.5" r="10" fill="var(--bg)" stroke="var(--fg)" stroke-width="1.5"/>
+  <circle cx="430" cy="178.5" r="10" fill="var(--bg)" stroke="var(--fg)" stroke-width="1.5"/>
+  <circle cx="430" cy="235.5" r="10" fill="var(--bg)" stroke="var(--fg)" stroke-width="1.5"/>
+  <circle cx="580" cy="50.0" r="10" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/>
+  <circle cx="580" cy="79.0" r="10" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/>
+  <circle cx="580" cy="107.0" r="10" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/>
+  <circle cx="580" cy="136.0" r="10" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/>
+  <circle cx="580" cy="164.0" r="10" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/>
+  <circle cx="580" cy="193.0" r="10" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/>
+  <circle cx="580" cy="221.0" r="10" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/>
+  <circle cx="580" cy="250.0" r="10" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/>
+  <line x1="660" y1="34" x2="660" y2="266" stroke="var(--accent)" stroke-width="2.4" stroke-dasharray="7 5"/>
+  <text class="hd" x="660" y="24" text-anchor="middle" fill="var(--accent)">the cap</text>
+  <text class="lbl" x="110" y="288" text-anchor="middle">gen 0</text>
+  <text class="lbl" x="270" y="288" text-anchor="middle">gen 1</text>
+  <text class="lbl" x="430" y="288" text-anchor="middle">gen 2</text>
+  <text class="lbl" x="580" y="288" text-anchor="middle">gen 3</text>
+</svg>
+<figcaption>
+  Found by reconstructing lineage: every impact traced back to the particle
+  it came from, then counted by generation. At generation three
+  <strong>no particle ever broke, although 3,773 impacts carried more than
+  enough energy to break one</strong>. The run completes, nothing warns, and
+  the numbers are plausible and low. Raising the limit moves one modelling
+  route&rsquo;s count by <strong>+30.5%</strong> and the other&rsquo;s by
+  <strong>0.0%</strong>, so any comparison between the two at the default had
+  one side quietly truncated and the other untouched.
+</figcaption>
+</figure>
 
   <p>
     Raising the limit moves one modelling route’s count by <strong>+30.5%</strong> and the other’s

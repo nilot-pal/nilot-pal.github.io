@@ -38,6 +38,13 @@
     everybody assumed.
   </p>
 
+  <div class="results">
+    <div><b>3.9&times;</b><span>faster on sixteen nodes than one, where the textbook predicts a penalty</span></div>
+    <div><b>1002 s</b><span>at 110 cores against 965 s at 68, on one machine</span></div>
+    <div><b>100M+</b><span>cell full-annulus runs, feasible for the group for the first time</span></div>
+    <div><b>2&times;</b><span>the licence allocation, once the study named it as the real ceiling</span></div>
+  </div>
+
   <h2>The scaling study</h2>
 
   <p>
@@ -85,6 +92,53 @@
     <strong>576 s on sixteen</strong>, a <strong>3.9× speed-up</strong> where the textbook
     predicts a penalty.
   </p>
+
+<figure class="diagram">
+<svg viewBox="0 0 760 316" role="img" aria-labelledby="ndT ndD">
+<title id="ndT">More nodes, faster, against the standard advice</title>
+<desc id="ndD">Wall-clock time for the same case. At 14 cores per node, 2269 seconds on one node falls to 576 on sixteen. At 64 cores per node, 838 seconds on one node falls to 711 on two and 530 on three. Standard practice for this solver is to minimise node count.</desc>
+  <text class="hd" x="40" y="40">14 cores per node</text>
+  <rect x="240" y="56" width="460.0" height="26" rx="2" fill="var(--accent)" opacity="0.9"/>
+  <text class="lbl" x="230" y="74" text-anchor="end">1 node</text>
+  <text class="num" x="709" y="74" fill="var(--accent)">2269 s</text>
+  <rect x="240" y="92" width="116.8" height="26" rx="2" fill="var(--good)" opacity="0.9"/>
+  <text class="lbl" x="230" y="110" text-anchor="end">16 nodes</text>
+  <text class="num" x="366" y="110" fill="var(--good)">576 s</text>
+  <text class="sm" x="419" y="110" fill="var(--good)">3.9&#215; faster than one node</text>
+  <text class="hd" x="40" y="140">64 cores per node</text>
+  <rect x="240" y="156" width="169.9" height="26" rx="2" fill="var(--accent)" opacity="0.9"/>
+  <text class="lbl" x="230" y="174" text-anchor="end">1 node</text>
+  <text class="num" x="419" y="174" fill="var(--accent)">838 s</text>
+  <rect x="240" y="192" width="144.1" height="26" rx="2" fill="var(--good)" opacity="0.9"/>
+  <text class="lbl" x="230" y="210" text-anchor="end">2 nodes</text>
+  <text class="num" x="393" y="210" fill="var(--good)">711 s</text>
+  <rect x="240" y="228" width="107.4" height="26" rx="2" fill="var(--good)" opacity="0.9"/>
+  <text class="lbl" x="230" y="246" text-anchor="end">3 nodes</text>
+  <text class="num" x="356" y="246" fill="var(--good)">530 s</text>
+  <line x1="240" y1="266" x2="700" y2="266" stroke="var(--line)" stroke-width="1"/>
+  <line x1="240.0" y1="266" x2="240.0" y2="271" stroke="var(--muted)" stroke-width="1"/>
+  <text class="sm" x="240.0" y="285" text-anchor="middle">0</text>
+  <line x1="341.4" y1="266" x2="341.4" y2="271" stroke="var(--muted)" stroke-width="1"/>
+  <text class="sm" x="341.4" y="285" text-anchor="middle">500</text>
+  <line x1="442.7" y1="266" x2="442.7" y2="271" stroke="var(--muted)" stroke-width="1"/>
+  <text class="sm" x="442.7" y="285" text-anchor="middle">1000</text>
+  <line x1="544.1" y1="266" x2="544.1" y2="271" stroke="var(--muted)" stroke-width="1"/>
+  <text class="sm" x="544.1" y="285" text-anchor="middle">1500</text>
+  <line x1="645.5" y1="266" x2="645.5" y2="271" stroke="var(--muted)" stroke-width="1"/>
+  <text class="sm" x="645.5" y="285" text-anchor="middle">2000</text>
+  <text class="sm" x="240" y="306">wall-clock seconds, same case</text>
+</svg>
+<figcaption>
+  Standard practice for this solver is to <em>minimise</em> node count:
+  domain decomposition makes the partitions interdependent, every iteration
+  exchanges boundary data between ranks, and across a network that costs 10
+  to 100 times what it costs inside a node. It did the opposite. The workload
+  is bound by storage I/O and memory throughput rather than compute, so
+  spreading it across more machines multiplies the aggregate I/O capacity and
+  puts the work on more independent CPU and memory buses. The communication
+  penalty is real; the bandwidth gain is simply bigger.
+</figcaption>
+</figure>
 
   <div class="callout">
     <p>
