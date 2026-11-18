@@ -356,12 +356,9 @@ wall.</desc>
   <p>
     <strong>The vendor answered in November 2026, and changed the product.</strong> ANSYS
     Development reproduced the defect and corrected it in CFX release 27R2, due summer 2027. Their
-    description adds something my diagnosis did not have: in a rotating domain the child was given
-    the wrong <em>starting position</em> as well as the wrong velocity. That is very likely the
-    missing piece above, because a child placed at the wrong position re-impacts immediately, which
-    is the one symptom I could not account for. Whether the change also covers the second code path
-    in section five is still open, since the fix was described in terms of particles created at
-    walls.
+    description: in a rotating domain the child was given the wrong <em>starting position</em> as
+    well as the wrong velocity. The fix was described in terms of particles created at walls, so
+    whether it also covers the second code path in section five is still open.
   </p>
 
   <h2>Four: an undocumented limit, found by asking who the parents were</h2>
