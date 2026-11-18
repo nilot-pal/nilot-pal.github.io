@@ -347,10 +347,21 @@ wall.</desc>
     through three chained impacts, and it is unusable in a real machine, where the same correction
     turns 2,885 impacts into 50.9 million and a median impact speed of 179&nbsp;m/s into
     8,549&nbsp;m/s. Whether the fault then lies in the returned value or in the solver’s own
-    separation test is not observable from outside, which is where it sits with the vendor.
+    separation test is not observable from outside, which is where it sat with the vendor.
     The fix that works goes around the affected path entirely, returning coefficients and a breakup
     factor rather than a velocity, and the unphysical population it was producing falls from
     <strong>39.8% to 0.91%</strong>.
+  </p>
+
+  <p>
+    <strong>The vendor answered in November 2026, and changed the product.</strong> ANSYS
+    Development reproduced the defect and corrected it in CFX release 27R2, due summer 2027. Their
+    description adds something my diagnosis did not have: in a rotating domain the child was given
+    the wrong <em>starting position</em> as well as the wrong velocity. That is very likely the
+    missing piece above, because a child placed at the wrong position re-impacts immediately, which
+    is the one symptom I could not account for. Whether the change also covers the second code path
+    in section five is still open, since the fix was described in terms of particles created at
+    walls.
   </p>
 
   <h2>Four: an undocumented limit, found by asking who the parents were</h2>
