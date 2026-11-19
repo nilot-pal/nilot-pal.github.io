@@ -68,6 +68,33 @@
     classes in both directions.
   </p>
 
+  <p>
+    I did try not to. The first version called <strong>GSL</strong> from Fortran through its C
+    interoperability bindings, with a Bessel function as a smoke test that the interop worked at
+    all, and then GSL's own incomplete beta for the real computation. That version cannot ship,
+    because the build that runs inside the solver cannot carry an external dependency. So the
+    functions were written without it. Having had both versions turned out to be the useful part:
+    one checks the other.
+  </p>
+
+  <p>
+    Each piece was then checked on its own, with its own test driver, before any of it went near
+    the solver. The incomplete beta was compared against GSL. The cubic spline was checked two
+    independent ways: against a published Fortran spline library, where the build reproduced its
+    shipped reference output across <strong>4,002 lines with the only differences at the 1e-15
+    level</strong>, and against a second spline built on <strong>Intel MKL</strong>'s data-fitting
+    routines. Then the modules were tested <em>composed</em>, the spline driven by the
+    incomplete-beta output over 500 interpolation points, and finally the whole chain end to end,
+    from impact energy and specific breakage energy through to the six child diameters and their
+    number rates. A separate Python implementation of the same model was the fourth reference.
+  </p>
+
+  <p>
+    None of that is glamorous and all of it is why I trust the library. A user routine that runs is
+    not the same as a user routine that is right, and inside a closed solver there is nobody else
+    to tell you the difference.
+  </p>
+
   <h2>2. There is no per-particle state</h2>
 
   <p>
